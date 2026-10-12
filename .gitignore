@@ -1,0 +1,22 @@
+# Secrets — never commit real credentials. Matches .env anywhere in the repo
+# (there was a stray duplicate at the project root as well as backend/.env).
+.env
+*/.env
+backend/config.json
+
+# Build artifacts
+backend/server.exe
+backend/*.dll
+*.exe
+*.obj
+*.o
+
+# Vendored third-party libraries (Crow, Asio, nlohmann/json).
+# Large and not authored by this project — see README for how to obtain them.
+backend/include/
+
+# OS / editor junk
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

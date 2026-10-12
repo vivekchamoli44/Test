@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medico - ASHA Worker Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Top Navbar -->
+    <header class="navbar">
+        <a href="/" class="brand">
+            <div class="brand-icon">⚕</div>
+            <div>
+                <div class="brand-title">Medico</div>
+                <div class="brand-sub">Early Health Detection & Community Healthcare Triage</div>
+            </div>
+        </a>
+
+        <div class="nav-right">
+            <div id="nav-user-info" style="display: none; align-items: center; gap: 10px;">
+                <span id="nav-user-name" class="user-pill">User</span>
+                <button id="logout-btn" class="btn btn-outline btn-sm">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ASHA WORKER DASHBOARD VIEW -->
+    <div id="view-worker" class="container">
+        <div class="hero-banner" style="background: linear-gradient(135deg, #0d9488, #0f766e);">
+            <div>
+                <h2>ASHA Healthcare Triage Center</h2>
+                <p>Community Early Intervention & Prioritized Patient Outreach</p>
+            </div>
+        </div>
+
+        <!-- KPI Metrics -->
+        <div class="grid-4">
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">👥</div>
+                <div><div class="stat-val" id="kpi-total">--</div><div class="stat-lbl">TOTAL PATIENTS</div></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #fee2e2; color: #dc2626;">🚨</div>
+                <div><div class="stat-val" id="kpi-critical" style="color: #dc2626;">--</div><div class="stat-lbl">CRITICAL RISK</div></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #ffedd5; color: #ea580c;">⚠️</div>
+                <div><div class="stat-val" id="kpi-high" style="color: #ea580c;">--</div><div class="stat-lbl">HIGH RISK</div></div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">📢</div>
+                <div><div class="stat-val" id="kpi-alerts" style="color: #16a34a;">--</div><div class="stat-lbl">ALERTS DISPATCHED</div></div>
+            </div>
+        </div>
+
+        <!-- High Risk Individual Prioritization Table -->
+        <section class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800;">⚡ High Risk Individuals (Sorted: Highest to Lowest Risk)</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">
+                        Patients with the most acute clinical danger appear at the very top for urgent intervention.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 0.75rem;">
+                    <input type="text" id="triage-search" class="form-input" style="width: 240px;" placeholder="🔍 Search patient, area...">
+                    <select id="triage-filter" class="form-select" style="width: 160px;">
+                        <option value="ALL">All Risk Levels</option>
+                        <option value="CRITICAL">Critical Only</option>
+                        <option value="HIGH">High Only</option>
+                        <option value="MODERATE">Moderate Only</option>
+                        <option value="LOW">Low Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="triage-table-wrapper">
+                <table class="triage-table">
+                    <thead>
+                        <tr>
+                            <th>Risk Score</th>
+                            <th>Patient Information</th>
+                            <th>Clinical Symptoms & Risk Signs</th>
+                            <th>Specialist & Disease</th>
+                            <th>Alert Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="triage-tbody">
+                        <!-- Populated dynamically via dashboard_triage.js -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Contact Patient Modal -->
+    <div id="contact-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 480px;">
+            <button type="button" class="modal-close" id="close-contact-modal" onclick="document.getElementById('contact-modal').classList.remove('active')">&times;</button>
+            <div style="margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.35rem; font-weight: 800;">📞 Patient Contact Details</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Direct contact information for community outreach</p>
+            </div>
+
+            <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Patient Name</div>
+                    <div id="modal-patient-name" style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-top: 2px;">--</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Contact Number</div>
+                    <div id="modal-patient-phone" style="font-size: 1.1rem; font-weight: 700; color: var(--primary-dark); margin-top: 2px;">--</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Location / Area</div>
+                    <div id="modal-patient-area" style="font-size: 1rem; font-weight: 600; color: var(--text-main); margin-top: 2px;">--</div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('contact-modal').classList.remove('active')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Diagnostic Assessment Report Modal -->
+    <div id="report-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 780px;">
+            <button type="button" class="modal-close" onclick="document.getElementById('report-modal').classList.remove('active')">&times;</button>
+
+            <!-- Modal Header with Date & Time Stamp -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div id="modal-diag-circle" class="score-circle">
+                        <span id="modal-diag-score">--</span>
+                        <small>Risk</small>
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <h3 id="modal-report-patient-name" style="font-size: 1.3rem; font-weight: 800;">Clinical Health Report</h3>
+                            <span id="modal-diag-badge" class="badge">--</span>
+                        </div>
+                        <p id="modal-report-meta" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">AI Early Disease Evaluation</p>
+                    </div>
+                </div>
+
+                <div style="text-align: right; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.85rem;">
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Assessment Date & Time</div>
+                    <div id="modal-report-timestamp" style="font-size: 0.92rem; font-weight: 700; color: var(--primary-dark);">--</div>
+                </div>
+            </div>
+
+            <!-- Doctor Callout -->
+            <div class="doctor-callout" style="margin-bottom: 1.25rem;">
+                <div style="font-size: 2rem;">👨‍⚕️</div>
+                <div>
+                    <strong style="color: #065f46; font-size: 1.05rem;">Recommended Specialist: <span id="modal-diag-doctor">General Physician</span></strong>
+                    <div style="color: #047857; font-size: 0.85rem;">Clinical consultation advised for targeted diagnostic workup and care protocol.</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem;">
+                    <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">🔍 Possible Chronic Diseases</h4>
+                    <div id="modal-diag-diseases"></div>
+                </div>
+
+                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem;">
+                    <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">⚠️ Symptoms to Watch Out For</h4>
+                    <ul id="modal-diag-other-sym" style="padding-left: 1.25rem; font-size: 0.88rem; margin: 0;"></ul>
+                </div>
+            </div>
+
+            <div class="grid-2" style="margin-top: 1rem;">
+                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem;">
+                    <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">🛡️ Precautions & Recommendations</h4>
+                    <ul id="modal-diag-precautions" style="padding-left: 1.25rem; font-size: 0.88rem; margin: 0;"></ul>
+                </div>
+
+                <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 1.15rem;">
+                    <h4 style="font-size: 0.92rem; font-weight: 700; color: #991b1b; margin-bottom: 0.5rem;">🚀 Immediate Next Actions</h4>
+                    <p id="modal-diag-actions" style="font-size: 0.88rem; color: #7f1d1d; font-weight: 500; margin: 0;">--</p>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('report-modal').classList.remove('active')">
+                    Close Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login, Sign Up & ASHA Notification Module (Yashwardhan Rohilla) — nav user info + logout + page guard + Send Alert -->
+    <script src="/js/auth_notification.js"></script>
+    <!-- AI Integration with Gemini & Patient: Start New Assessment (Vivek Chamoli) — renderReport for the shared report modal -->
+    <script src="/js/ai_assessment.js"></script>
+    <!-- Patient & ASHA Worker Dashboard & ASHA Worker: High Risk Individual (Nandini) -->
+    <script src="/js/dashboard_triage.js"></script>
+</body>
+</html>

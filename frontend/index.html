@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medico - Sign In</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Top Navbar -->
+    <header class="navbar">
+        <a href="/" class="brand">
+            <div class="brand-icon">⚕</div>
+            <div>
+                <div class="brand-title">Medico</div>
+                <div class="brand-sub">Early Health Detection & Community Healthcare Triage</div>
+            </div>
+        </a>
+    </header>
+
+    <!-- AUTH VIEW (Login & Sign Up) -->
+    <div id="view-auth" class="auth-wrapper">
+        <div class="auth-card">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <h2 id="auth-title" style="font-size: 1.5rem; font-weight: 800;">Sign In</h2>
+                <p style="color: var(--text-muted); font-size: 0.88rem;">Select your portal role below to continue</p>
+            </div>
+
+            <!-- Role Selector -->
+            <div class="role-tabs">
+                <button type="button" class="role-tab active" id="tab-patient">👤 Patient Portal</button>
+                <button type="button" class="role-tab" id="tab-worker">🩺 ASHA Worker Portal</button>
+            </div>
+
+            <form id="auth-form" autocomplete="off">
+                <!-- Registration Fields -->
+                <div class="form-group reg-field" style="display: none;">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="reg_name" class="form-input" placeholder="e.g. Ramesh Kumar" autocomplete="off">
+                </div>
+
+                <div class="grid-2 reg-field" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" id="reg_phone" class="form-input" placeholder="+91 98765 43210" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Village / Ward</label>
+                        <input type="text" id="reg_area" class="form-input" placeholder="Rampur Ward 4" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="grid-2 reg-field" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Age</label>
+                        <input type="number" id="reg_age" class="form-input" placeholder="Enter age" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <select id="reg_gender" class="form-select" autocomplete="off">
+                            <option value="" disabled selected>Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Gmail & Password -->
+                <div class="form-group">
+                    <label class="form-label">Gmail Address</label>
+                    <input type="email" id="email" class="form-input" placeholder="e.g. yourname@gmail.com" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="Enter password" required autocomplete="new-password">
+                </div>
+
+                <button type="submit" id="auth-submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-size: 0.95rem;">
+                    Sign In
+                </button>
+
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="#" id="toggle-auth-btn" style="color: var(--primary); font-size: 0.88rem; font-weight: 600; text-decoration: none;">
+                        New user? Sign Up
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login, Sign Up & ASHA Notification Module (Yashwardhan Rohilla) -->
+    <script src="/js/auth_notification.js"></script>
+</body>
+</html>

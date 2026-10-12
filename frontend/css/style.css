@@ -1,0 +1,573 @@
+/* ==========================================================================
+   MEDICO - Basic & Clean CSS Styling
+   A beginner-friendly, clean stylesheet for early health detection.
+   ========================================================================== */
+
+/* 1. Basic Colors & Settings */
+:root {
+    --primary: #0284c7;        /* Medical Blue */
+    --primary-dark: #0369a1;
+    --primary-light: #e0f2fe;
+    --accent: #0d9488;         /* Teal Accent */
+    --accent-light: #ccfbf1;
+    --bg: #f8fafc;             /* Light Gray Background */
+    --card-bg: #ffffff;        /* White Cards */
+    --text-main: #0f172a;       /* Dark Text */
+    --text-muted: #64748b;      /* Gray Muted Text */
+    --border: #e2e8f0;          /* Soft Border */
+}
+
+/* 2. Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text-main);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* 3. Navigation Bar */
+.navbar {
+    background: #ffffff;
+    border-bottom: 2px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-main);
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    background: var(--primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.brand-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.brand-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-pill {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* 4. Layout & Containers */
+.container {
+    max-width: 1020px;
+    margin: 24px auto;
+    padding: 0 16px;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.card-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+    .grid-2, .grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 5. Buttons */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.15s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-main);
+}
+
+.btn-outline:hover {
+    background-color: #f1f5f9;
+}
+
+.btn-accent {
+    background-color: var(--accent);
+    color: white;
+}
+
+.btn-danger {
+    background-color: #ef4444;
+    color: white;
+}
+
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+/* 6. Forms & Inputs */
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    outline: none;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--primary);
+}
+
+/* 7. Authentication Screen */
+.auth-wrapper {
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.auth-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.role-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.role-tab {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border);
+    background: #f8fafc;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.role-tab.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* 8. Hero Banner */
+.hero-banner {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    padding: 22px 26px;
+    border-radius: 10px;
+    margin-bottom: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.hero-banner h2 {
+    font-size: 22px;
+    margin-bottom: 4px;
+}
+
+.hero-banner p {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+/* 9. Metric / KPI Cards */
+.metric-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--primary-dark);
+}
+
+.metric-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* 10. AI Diagnostic Result Box */
+.ai-result-box {
+    display: none;
+    background: white;
+    border: 2px solid #bbf7d0;
+    border-radius: 10px;
+    padding: 22px;
+    margin-bottom: 24px;
+}
+
+.ai-result-box.active {
+    display: block;
+}
+
+.score-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #10b981;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.score-circle small {
+    font-size: 10px;
+}
+
+.doctor-callout {
+    background: #ecfdf5;
+    border-left: 4px solid #10b981;
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* 11. Badges and Tags */
+.badge {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.badge-low { background: #dcfce7; color: #15803d; }
+.badge-moderate { background: #fef9c3; color: #a16207; }
+.badge-high { background: #ffedd5; color: #c2410c; }
+.badge-critical { background: #fee2e2; color: #b91c1c; }
+
+.pill-tag {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    display: inline-block;
+}
+
+.alert-flag {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* 12. Questionnaire Categories */
+.question-category {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+
+.category-title {
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--primary-dark);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+}
+
+.symptom-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.radio-group {
+    display: flex;
+    gap: 14px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* 13. Tables */
+.triage-table-wrapper {
+    overflow-x: auto;
+}
+
+.triage-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.triage-table th, .triage-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+
+.triage-table th {
+    background: #f8fafc;
+    color: var(--text-muted);
+    font-weight: bold;
+}
+
+/* 14. Modals */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-card {
+    background: white;
+    border-radius: 10px;
+    padding: 24px;
+    width: 90%;
+    max-width: 650px;
+    max-height: 88vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+/* 15. Patient Layout with ASHA Alerts Sidebar */
+.patient-container {
+    max-width: 1140px;
+}
+
+.patient-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 920px) {
+    .patient-grid-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.patient-sidebar {
+    position: sticky;
+    top: 80px;
+}
+
+.alert-sidebar-card {
+    border-top: 4px solid #ef4444;
+    border-radius: 10px;
+}
+
+.alerts-stream {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.alert-item-card {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 1px 2px rgba(220, 38, 38, 0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.alert-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.15);
+}
+
+.alert-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #991b1b;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.alert-item-msg {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #7f1d1d;
+    line-height: 1.45;
+    margin-bottom: 8px;
+}
+
+.alert-item-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #991b1b;
+    border-top: 1px dashed #fca5a5;
+    padding-top: 6px;
+    margin-top: 6px;
+}

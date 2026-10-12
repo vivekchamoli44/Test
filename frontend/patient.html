@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medico - Patient Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Top Navbar -->
+    <header class="navbar">
+        <a href="/" class="brand">
+            <div class="brand-icon">⚕</div>
+            <div>
+                <div class="brand-title">Medico</div>
+                <div class="brand-sub">Early Health Detection & Community Healthcare Triage</div>
+            </div>
+        </a>
+
+        <div class="nav-right">
+            <div id="nav-user-info" style="display: none; align-items: center; gap: 10px;">
+                <span id="nav-user-name" class="user-pill">User</span>
+                <button id="logout-btn" class="btn btn-outline btn-sm">Sign Out</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- PATIENT DASHBOARD VIEW -->
+    <div id="view-patient" class="container patient-container">
+        <!-- Hero Action Bar -->
+        <div class="hero-banner">
+            <div>
+                <h2>Patient Health Dashboard</h2>
+                <p>Early Chronic Disease Detection & Personalized Risk Evaluation</p>
+            </div>
+            <div>
+                <button id="open-assess-modal" class="btn btn-primary" style="background: white; color: var(--primary-dark); font-size: 0.95rem; padding: 0.75rem 1.25rem;">
+                    ➕ Start New Assessment
+                </button>
+            </div>
+        </div>
+
+        <div class="patient-grid-layout">
+            <!-- Left Main Content Column -->
+            <div class="patient-main-content">
+                <!-- AI Diagnostic Report Display -->
+                <div id="ai-report-display" class="ai-result-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div id="diag-circle" class="score-circle">
+                                <span id="diag-score">--</span>
+                                <small>Risk</small>
+                            </div>
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <h3 style="font-size: 1.3rem; font-weight: 700;">AI Chronic Risk Assessment</h3>
+                                    <span id="diag-badge" class="badge">--</span>
+                                </div>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">Model Engine: Google Gemini Clinical AI & Biomarker Calibrations</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Doctor Callout -->
+                    <div class="doctor-callout">
+                        <div style="font-size: 2rem;">🩺</div>
+                        <div>
+                            <strong style="color: #065f46; font-size: 1.05rem;">Recommended Doctor: <span id="diag-doctor">General Physician</span></strong>
+                            <div style="color: #047857; font-size: 0.85rem;">Clinical consultation recommended for targeted diagnostic testing and care plan.</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem;">
+                            <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">🔍 Possible Chronic Diseases</h4>
+                            <div id="diag-diseases"></div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem;">
+                            <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">⚠️ Symptoms to Watch Out For</h4>
+                            <ul id="diag-other-sym" style="padding-left: 1.25rem; font-size: 0.88rem;"></ul>
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="margin-top: 1rem;">
+                        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem;">
+                            <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">🛡️ Precautions & Lifestyle</h4>
+                            <ul id="diag-precautions" style="padding-left: 1.25rem; font-size: 0.88rem;"></ul>
+                        </div>
+
+                        <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 1.25rem;">
+                            <h4 style="font-size: 0.92rem; font-weight: 700; color: #991b1b; margin-bottom: 0.5rem;">🚀 Immediate Next Actions</h4>
+                            <p id="diag-actions" style="font-size: 0.88rem; color: #7f1d1d; font-weight: 500;">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Previous Assessments Section -->
+                <section class="card">
+                    <div class="card-title">📋 Previous Health Assessments</div>
+                    <p class="card-desc">Historical timeline of your screenings, reported symptoms, and physician recommendations.</p>
+                    <div id="history-timeline-box"></div>
+                </section>
+            </div>
+
+            <!-- Right Sidebar: ASHA Worker Alerts -->
+            <aside class="patient-sidebar">
+                <div class="card alert-sidebar-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 1.3rem;">🚨</span>
+                            <h3 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #991b1b;">ASHA Worker Alerts</h3>
+                        </div>
+                        <span id="patient-alert-badge" class="badge badge-low">0 Alerts</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">
+                        Emergency clinical notifications & referral instructions sent by your community healthcare worker.
+                    </p>
+                    <div id="patient-alerts-list" class="alerts-stream">
+                        <div style="text-align: center; padding: 18px 12px; background: #f0fdf4; border: 1px dashed #86efac; border-radius: 8px; color: #166534; font-size: 12px;">
+                            <div style="font-size: 24px; margin-bottom: 6px;">✅</div>
+                            <strong>No Active Alerts</strong>
+                            <p style="margin: 4px 0 0; color: #15803d; font-size: 11px;">Your ASHA community health worker has not dispatched emergency alerts.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Helplines -->
+                <div class="card" style="background: #f8fafc; border: 1px solid var(--border);">
+                    <h4 style="font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main);">🚨 Emergency Numbers</h4>
+                    <div style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.7;">
+                        <div>🚑 Ambulance: <strong style="color: #dc2626;">108</strong></div>
+                        <div>📞 Health Helpline: <strong style="color: var(--primary);">104</strong></div>
+                        <div>🚨 National Emergency: <strong style="color: #ea580c;">112</strong></div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Start New Assessment Modal -->
+    <div id="assess-modal" class="modal-overlay">
+        <div class="modal-card">
+            <button type="button" class="modal-close" id="close-assess-modal" onclick="document.getElementById('assess-modal').classList.remove('active')">&times;</button>
+            <div style="margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.35rem; font-weight: 800;">Start New Health Assessment</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">AI Clinical Risk Evaluation</p>
+            </div>
+
+            <form id="assessment-form" autocomplete="off">
+                <!-- Symptoms Checkboxes -->
+                <div class="question-category">
+                    <div class="category-title">
+                        <span>❤️</span>
+                        <span>Cardiovascular & Circulatory Symptoms</span>
+                    </div>
+                    <div class="symptom-grid">
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Chest tightness or pressure (radiating to arm/jaw)">
+                            <span class="symptom-label"><strong>Chest Pain/Tightness</strong><br><small style="color:var(--text-muted)">Pressure radiating to arm, neck or jaw</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Shortness of breath during mild exertion or lying flat">
+                            <span class="symptom-label"><strong>Shortness of Breath</strong><br><small style="color:var(--text-muted)">During mild movement or lying flat</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Rapid fluttering heartbeat or palpitations">
+                            <span class="symptom-label"><strong>Heart Palpitations</strong><br><small style="color:var(--text-muted)">Rapid fluttering or racing pulse</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Swollen ankles, feet or fluid retention (edema)">
+                            <span class="symptom-label"><strong>Swollen Feet/Ankles</strong><br><small style="color:var(--text-muted)">Noticeable fluid retention (edema)</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Cold sweats and sudden unexplained lightheadedness">
+                            <span class="symptom-label"><strong>Cold Sweats & Lightheadedness</strong><br><small style="color:var(--text-muted)">Clammy skin with dizzy spells</small></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-category">
+                    <div class="category-title">
+                        <span>🩸</span>
+                        <span>Diabetic, Metabolic & Endocrine Signs</span>
+                    </div>
+                    <div class="symptom-grid">
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Frequent night urination (polyuria)">
+                            <span class="symptom-label"><strong>Frequent Urination</strong><br><small style="color:var(--text-muted)">Waking up multiple times at night</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Excessive unquenchable thirst (polydipsia)">
+                            <span class="symptom-label"><strong>Excessive Thirst</strong><br><small style="color:var(--text-muted)">Constant dry mouth despite water</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Tingling, burning or numbness in feet/fingers (neuropathy)">
+                            <span class="symptom-label"><strong>Pins & Needles Numbness</strong><br><small style="color:var(--text-muted)">Burning or loss of sensation in toes/hands</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Unexplained sudden weight loss or extreme fatigue">
+                            <span class="symptom-label"><strong>Unexplained Weight Loss</strong><br><small style="color:var(--text-muted)">Sudden drop in body weight or exhaustion</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Slow healing cuts, sores or recurrent skin infections">
+                            <span class="symptom-label"><strong>Slow-Healing Cuts</strong><br><small style="color:var(--text-muted)">Wounds or bruises that linger for weeks</small></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-category">
+                    <div class="category-title">
+                        <span>🫁</span>
+                        <span>Respiratory & Neurological Warning Signs</span>
+                    </div>
+                    <div class="symptom-grid">
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Chronic cough lasting more than 3 weeks or wheezing">
+                            <span class="symptom-label"><strong>Chronic Cough / Wheezing</strong><br><small style="color:var(--text-muted)">Cough persisting for >3 weeks</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Sudden weakness or numbness on one side of face/body">
+                            <span class="symptom-label"><strong>One-Sided Weakness</strong><br><small style="color:var(--text-muted)">Sudden arm/face weakness or droop</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Blurry vision, double vision or loss of focus">
+                            <span class="symptom-label"><strong>Blurry / Double Vision</strong><br><small style="color:var(--text-muted)">Sudden haze or difficulty reading</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Severe recurring headaches or sudden dizziness/vertigo">
+                            <span class="symptom-label"><strong>Severe Headaches / Vertigo</strong><br><small style="color:var(--text-muted)">Intense throbbing with loss of balance</small></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-category">
+                    <div class="category-title">
+                        <span>⏱️</span>
+                        <span>Symptom Duration & Severity Level</span>
+                    </div>
+                    <div class="grid-2">
+                        <div>
+                            <label class="form-label">How long have you experienced these symptoms?</label>
+                            <select id="input-symptom-duration" class="form-select">
+                                <option value="" disabled selected>Select symptom duration</option>
+                                <option value="Under 48 hours (Acute onset)">Under 48 hours (Acute / Sudden onset)</option>
+                                <option value="1 to 2 weeks">1 to 2 weeks</option>
+                                <option value="1 to 3 months">1 to 3 months (Sub-acute)</option>
+                                <option value="More than 6 months (Chronic)">More than 6 months (Long-term / Chronic)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Perceived Pain / Discomfort Severity</label>
+                            <div class="radio-group" style="padding-top: 0.35rem;">
+                                <label class="radio-label"><input type="radio" name="severity_level" value="Mild"> Mild</label>
+                                <label class="radio-label"><input type="radio" name="severity_level" value="Moderate"> Moderate</label>
+                                <label class="radio-label"><input type="radio" name="severity_level" value="Severe"> Severe / Debilitating</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question-category">
+                    <div class="category-title">
+                        <span>🧬</span>
+                        <span>Lifestyle Factors & Family Clinical History</span>
+                    </div>
+                    <div class="grid-2">
+                        <div>
+                            <label class="form-label">Family Medical History (Select all that apply)</label>
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.85rem;">
+                                <label><input type="checkbox" name="family_hist" value="Family history of Heart Attack/CAD"> Early Heart Attack / CAD</label>
+                                <label><input type="checkbox" name="family_hist" value="Family history of Type 2 Diabetes"> Type 2 Diabetes</label>
+                                <label><input type="checkbox" name="family_hist" value="Family history of Hypertension"> Chronic High Blood Pressure</label>
+                                <label><input type="checkbox" name="family_hist" value="Family history of Stroke"> Stroke or Paralysis</label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label">Lifestyle & Risk Habits</label>
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.85rem;">
+                                <label><input type="checkbox" name="lifestyle_hist" value="Active tobacco or bidi/cigarette smoking"> Tobacco / Bidi / Cigarette use</label>
+                                <label><input type="checkbox" name="lifestyle_hist" value="Sedentary lifestyle with minimal physical activity"> Sedentary lifestyle (&lt;30m exercise/week)</label>
+                                <label><input type="checkbox" name="lifestyle_hist" value="High sodium / processed foods diet"> High sodium / salty / packaged diet</label>
+                                <label><input type="checkbox" name="lifestyle_hist" value="High persistent work or mental stress"> Chronic high psychological stress</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 0.75rem;">
+                    <label class="form-label">Additional Symptoms or Clinical Complaints</label>
+                    <textarea id="input-custom-sym" class="form-textarea" rows="2" placeholder="Describe any specific sensations, exact location of pain, or recent medication changes..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Prior Diagnoses & Current Medications</label>
+                    <input type="text" id="input-history" class="form-input" placeholder="e.g. Diagnosed with mild BP 2 years ago, taking Metformin 500mg..." autocomplete="off">
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('assess-modal').classList.remove('active')">Cancel</button>
+                    <button type="submit" id="submit-assess-btn" class="btn btn-primary" style="padding: 0.7rem 1.4rem;">
+                        ⚡ Run AI Diagnostic Assessment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- AI Diagnostic Assessment Report Modal -->
+    <div id="report-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 780px;">
+            <button type="button" class="modal-close" onclick="document.getElementById('report-modal').classList.remove('active')">&times;</button>
+
+            <!-- Modal Header with Date & Time Stamp -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div id="modal-diag-circle" class="score-circle">
+                        <span id="modal-diag-score">--</span>
+                        <small>Risk</small>
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <h3 id="modal-report-patient-name" style="font-size: 1.3rem; font-weight: 800;">Clinical Health Report</h3>
+                            <span id="modal-diag-badge" class="badge">--</span>
+                        </div>
+                        <p id="modal-report-meta" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">AI Early Disease Evaluation</p>
+                    </div>
+                </div>
+
+                <div style="text-align: right; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.85rem;">
+                    <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Assessment Date & Time</div>
+                    <div id="modal-report-timestamp" style="font-size: 0.92rem; font-weight: 700; color: var(--primary-dark);">--</div>
+                </div>
+            </div>
+
+            <!-- Doctor Callout -->
+            <div class="doctor-callout" style="margin-bottom: 1.25rem;">
+                <div style="font-size: 2rem;">👨‍⚕️</div>
+                <div>
+                    <strong style="color: #065f46; font-size: 1.05rem;">Recommended Specialist: <span id="modal-diag-doctor">General Physician</span></strong>
+                    <div style="color: #047857; font-size: 0.85rem;">Clinical consultation advised for targeted diagnostic workup and care protocol.</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem;">
+                    <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">🔍 Possible Chronic Diseases</h4>
+                    <div id="modal-diag-diseases"></div>
+                </div>
+
+                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem;">
+                    <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">⚠️ Symptoms to Watch Out For</h4>
+                    <ul id="modal-diag-other-sym" style="padding-left: 1.25rem; font-size: 0.88rem; margin: 0;"></ul>
+                </div>
+            </div>
+
+            <div class="grid-2" style="margin-top: 1rem;">
+                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem;">
+                    <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">🛡️ Precautions & Recommendations</h4>
+                    <ul id="modal-diag-precautions" style="padding-left: 1.25rem; font-size: 0.88rem; margin: 0;"></ul>
+                </div>
+
+                <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 1.15rem;">
+                    <h4 style="font-size: 0.92rem; font-weight: 700; color: #991b1b; margin-bottom: 0.5rem;">🚀 Immediate Next Actions</h4>
+                    <p id="modal-diag-actions" style="font-size: 0.88rem; color: #7f1d1d; font-weight: 500; margin: 0;">--</p>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('report-modal').classList.remove('active')">
+                    Close Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login, Sign Up & ASHA Notification Module (Yashwardhan Rohilla) — nav user info + logout + page guard -->
+    <script src="/js/auth_notification.js"></script>
+    <!-- AI Integration with Gemini & Patient: Start New Assessment (Vivek Chamoli) -->
+    <script src="/js/ai_assessment.js"></script>
+    <!-- Database and Testing & Patient: Show Previous Assessment (Anjali) -->
+    <script src="/js/db_history.js"></script>
+</body>
+</html>

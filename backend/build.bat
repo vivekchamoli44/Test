@@ -15,7 +15,7 @@ if exist "%MYSQL_LIB%\libmysql.dll" (
     copy /y "%MYSQL_LIB%\libmysql.dll" . >nul
 )
 
-"%GCC_BIN%" -std=c++17 -O2 -static-libgcc -static-libstdc++ -Iinclude -I"%MYSQL_INC%" -L. -L"%MYSQL_LIB%" src\main.cpp -o server.exe -lmysql -lws2_32 -lmswsock -lwinhttp
+"%GCC_BIN%" -std=c++17 -O2 -static-libgcc -static-libstdc++ -Iinclude -I"%MYSQL_INC%" -L. -L"%MYSQL_LIB%" src\main.cpp -o server.exe -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic -lmysql -lws2_32 -lmswsock -lwinhttp
 
 if %ERRORLEVEL% equ 0 (
     echo [BUILD SUCCESS] server.exe created successfully with static C++ runtimes!

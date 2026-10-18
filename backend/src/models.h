@@ -1,10 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <memory>
 #include "nlohmann/json.h"
-
-namespace health {
-
+namespace health {\
 struct User {
     int id = 0;
     std::string username; // Also serves as/mirrors email
@@ -113,5 +112,61 @@ struct AIResult {
     std::vector<std::string> precautions;
     std::string immediate_actions;
 };
+
+// ============================================================================
+// OOP: Person / Patient / AshaWorker hierarchy (inheritance + polymorphism)
+// ----------------------------------------------------------------------------
+// `User` above stays the plain storage/API record (what gets saved to MySQL
+// and sent over JSON) so none of that is touched. This small hierarchy is
+// built on top of a User purely to demonstrate role-specific behavior via
+// a virtual method and dynamic dispatch.
+// ============================================================================
+
+class Person {
+protected:
+    std::string full_name_;
+    std::string village_area_;
+
+public:
+    Person(const std::string& full_name, const std::string& village_area)
+        : full_name_(full_name), village_area_(village_area) {}
+
+    virtual ~Person() = default;
+
+    const std::string& full_name() const { return full_name_; }
+
+    // Overridden by each role below — same call, different behavior (polymorphism).
+    virtual std::string role_description() const {
+        return "Community member";
+    }
+};
+
+class Patient : public Person {
+public:
+    Patient(const std::string& full_name, const std::string& village_area)
+        : Person(full_name, village_area) {}
+
+    std::string role_description() const override {
+        return "Patient - tracks personal health assessments and ASHA alerts";
+    }
+};
+
+class AshaWorker : public Person {
+public:
+    AshaWorker(const std::string& full_name, const std::string& village_area)
+        : Person(full_name, village_area) {}
+
+    std::string role_description() const override {
+        return "ASHA Worker - triages community members by risk and dispatches alerts";
+    }
+};
+
+// Builds the right Person subclass from a stored User record.
+inline std::unique_ptr<Person> make_person(const User& u) {
+    if (u.role == "asha_worker") {
+        return std::make_unique<AshaWorker>(u.full_name, u.village_area);
+    }
+    return std::make_unique<Patient>(u.full_name, u.village_area);
+}
 
 } // namespace health

@@ -22,7 +22,6 @@
 #include <string>
 #include <filesystem>
 #include "crow_all.h"
-#include "models.h"
 #include "db_history.h"
 #include "ai_assessment.h"
 #include "auth_notification.h"
@@ -58,29 +57,24 @@ int main() {
     std::cout << "   Community Disease Prevention & ASHA Worker Triage    " << std::endl;
     std::cout << "========================================================" << std::endl;
 
-    // Load Configuration
-    std::string db_host = "127.0.0.1";
-    int db_port = 3306;
-    std::string db_user = "root";
-    std::string db_pass = "";
-    std::string db_name = "ai_health_center";
-    std::string gemini_key = "";
-    int port = 8080;
+    // Load Configuration from .env / system environment variables
+    auto env_or = [](const std::string& key, const std::string& fallback) {
+        std::string v = health::load_env_var(key);
+        return v.empty() ? fallback : v;
+    };
+    auto env_or_int = [&](const std::string& key, int fallback) {
+        std::string v = health::load_env_var(key);
+        if (v.empty()) return fallback;
+        try { return std::stoi(v); } catch (...) { return fallback; }
+    };
 
-    std::ifstream cfg_file("config.json");
-    if (cfg_file.is_open()) {
-        try {
-            nlohmann::json cfg;
-            cfg_file >> cfg;
-            port = cfg.value("server_port", 8080);
-            db_host = cfg.value("mysql_host", "127.0.0.1");
-            db_port = cfg.value("mysql_port", 3306);
-            db_user = cfg.value("mysql_user", "root");
-            db_pass = cfg.value("mysql_password", "");
-            db_name = cfg.value("mysql_database", "ai_health_center");
-            gemini_key = cfg.value("gemini_api_key", "");
-        } catch (...) {}
-    }
+    std::string db_host = env_or("MYSQL_HOST", "127.0.0.1");
+    int db_port = env_or_int("MYSQL_PORT", 3306);
+    std::string db_user = env_or("MYSQL_USER", "root");
+    std::string db_pass = env_or("MYSQL_PASSWORD", "");
+    std::string db_name = env_or("MYSQL_DATABASE", "ai_health_center");
+    std::string gemini_key = health::load_env_var("GEMINI_API_KEY");
+    int port = env_or_int("SERVER_PORT", 8080);
 
     // 1. Module: Database & Testing (Implemented by Anjali)
     health::DatabaseManager db(db_host, db_port, db_user, db_pass, db_name);
@@ -104,7 +98,7 @@ int main() {
     health::register_db_history_routes(app, db);           // Anjali's Module
     health::register_ai_assessment_routes(app, db, ai);    // Vivek Chamoli's Module
     health::register_auth_notification_routes(app, db, auth); // Yashwardhan Rohilla's Module
-    health::register_dashboard_triage_routes(app, db);     // Nandini's Module
+    health::register_dashboard_triage_routes(app, db, auth);   // Nandini's Module
 
     // Frontend Static Assets Serving
     auto serve_page = [](const std::string& page_file) {

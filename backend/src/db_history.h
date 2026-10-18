@@ -16,7 +16,7 @@
 #include <iostream>
 #include <sstream>
 #include <mutex>
-#include <algorithm>
+#include <utility>
 #include <chrono>
 #include <iomanip>
 #include <mysql.h>
@@ -25,6 +25,67 @@
 #include "nlohmann/json.h"
 
 namespace health {
+
+// ============================================================================
+// DSA: Hand-written array-based binary max-heap, keyed on Assessment::risk_score.
+// ----------------------------------------------------------------------------
+// Used to sort the in-memory fallback's assessments highest-risk-first for the
+// ASHA worker dashboard, in place of a library std::sort call. Classic binary
+// heap: insert is O(log n) via sift-up, extract-max is O(log n) via sift-down,
+// so draining n items into sorted order is O(n log n) overall (heapsort).
+// ============================================================================
+class AssessmentMaxHeap {
+private:
+    std::vector<Assessment> data_;
+
+    static int parent(int i) { return (i - 1) / 2; }
+    static int left(int i) { return 2 * i + 1; }
+    static int right(int i) { return 2 * i + 2; }
+
+    void sift_up(int i) {
+        while (i > 0 && data_[parent(i)].risk_score < data_[i].risk_score) {
+            std::swap(data_[parent(i)], data_[i]);
+            i = parent(i);
+        }
+    }
+
+    void sift_down(int i) {
+        int n = (int)data_.size();
+        while (true) {
+            int l = left(i), r = right(i), largest = i;
+            if (l < n && data_[l].risk_score > data_[largest].risk_score) largest = l;
+            if (r < n && data_[r].risk_score > data_[largest].risk_score) largest = r;
+            if (largest == i) break;
+            std::swap(data_[i], data_[largest]);
+            i = largest;
+        }
+    }
+
+public:
+    bool empty() const { return data_.empty(); }
+
+    void insert(const Assessment& a) {
+        data_.push_back(a);
+        sift_up((int)data_.size() - 1);
+    }
+
+    // Removes and returns the assessment with the highest risk_score.
+    Assessment extract_max() {
+        Assessment top = data_.front();
+        data_.front() = data_.back();
+        data_.pop_back();
+        if (!data_.empty()) sift_down(0);
+        return top;
+    }
+
+    // Drains the whole heap into a vector ordered highest-risk-first.
+    std::vector<Assessment> drain_sorted() {
+        std::vector<Assessment> out;
+        out.reserve(data_.size());
+        while (!empty()) out.push_back(extract_max());
+        return out;
+    }
+};
 
 class DatabaseManager {
 private:
@@ -173,7 +234,7 @@ public:
 
     bool is_connected() const { return is_connected_; }
 
-    bool create_user(const User& user, int& new_id) {
+         bool create_user(const User& user, int& new_id) {
         std::lock_guard<std::mutex> lock(db_mutex_);
         if (is_connected_) {
             std::stringstream ss;
@@ -400,12 +461,43 @@ public:
                 }
             }
         } else {
-            list = memory_assessments_;
-            std::sort(list.begin(), list.end(), [](const Assessment& x, const Assessment& y) {
-                return x.risk_score > y.risk_score;
-            });
+            // DSA: use the hand-written max-heap instead of std::sort to rank
+            // the in-memory fallback's assessments highest-risk-first.
+            AssessmentMaxHeap heap;
+            for (const auto& a : memory_assessments_) heap.insert(a);
+            list = heap.drain_sorted();
         }
         return list;
+    }
+
+    // Looks up which area an assessment belongs to, so ASHA worker actions can
+    // be checked against the worker's own area. Returns false if no such record.
+    bool get_assessment_area(int assessment_id, std::string& out_area) {
+        std::lock_guard<std::mutex> lock(db_mutex_);
+        if (is_connected_) {
+            bool found = false;
+            std::string q = "SELECT village_area FROM assessments WHERE id = " + std::to_string(assessment_id) + " LIMIT 1;";
+            if (mysql_query(conn_, q.c_str()) == 0) {
+                MYSQL_RES* res = mysql_store_result(conn_);
+                if (res) {
+                    MYSQL_ROW row = mysql_fetch_row(res);
+                    if (row) {
+                        out_area = row[0] ? row[0] : "";
+                        found = true;
+                    }
+                    mysql_free_result(res);
+                }
+            }
+            return found;
+        } else {
+            for (const auto& a : memory_assessments_) {
+                if (a.id == assessment_id) {
+                    out_area = a.village_area;
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     bool update_alert(int assessment_id, const std::string& message) {

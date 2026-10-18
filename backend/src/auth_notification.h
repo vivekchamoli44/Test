@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <mutex>
 #include <random>
+#include <cctype>
 #include <iostream>
 #include "crow_all.h"
 #include "models.h"
@@ -65,6 +66,45 @@ public:
         sessions_.erase(token);
     }
 };
+
+// Village/area names are free text typed at sign-up, so compare them
+// ignoring case and extra whitespace ("Rampur Ward 4" == " rampur  ward 4").
+inline std::string normalize_area(const std::string& area) {
+    std::string out;
+    bool pending_space = false;
+    for (unsigned char c : area) {
+        if (std::isspace(c)) { pending_space = !out.empty(); continue; }
+        if (pending_space) { out += ' '; pending_space = false; }
+        out += (char)std::tolower(c);
+    }
+    return out;
+}
+
+// True if a patient record in `area` belongs to this ASHA worker's area.
+// A worker with no area on their account matches nobody.
+inline bool in_worker_area(const User& worker, const std::string& area) {
+    std::string worker_area = normalize_area(worker.village_area);
+    return !worker_area.empty() && worker_area == normalize_area(area);
+}
+
+// Resolves the request's Bearer token to a logged-in ASHA worker.
+// On failure, fills `res` with a 401/403 error and returns false.
+inline bool require_asha_worker(const crow::request& req, AuthSessionManager& auth, User& out_user, crow::response& res) {
+    std::string token = req.get_header_value("Authorization");
+    if (token.rfind("Bearer ", 0) == 0) token = token.substr(7);
+
+    if (!auth.get_user(token, out_user)) {
+        res.code = 401;
+        res.body = nlohmann::json({{"error", "Not authenticated. Please log in again."}}).dump();
+        return false;
+    }
+    if (out_user.role != "asha_worker") {
+        res.code = 403;
+        res.body = nlohmann::json({{"error", "Only ASHA workers can access this resource."}}).dump();
+        return false;
+    }
+    return true;
+}
 
 // Route registration for Yashwardhan Rohilla's module
 inline void register_auth_notification_routes(crow::SimpleApp& app, DatabaseManager& db, AuthSessionManager& auth) {
@@ -116,6 +156,12 @@ inline void register_auth_notification_routes(crow::SimpleApp& app, DatabaseMana
             u.id = new_id;
             std::string token = auth.create_session(u);
 
+            // OOP demo: build the role-specific Person subclass (Patient/AshaWorker)
+            // and log its polymorphic role_description() via the Person base pointer.
+            auto person = make_person(u);
+            std::cout << "[Auth Module] New account: " << person->full_name()
+                      << " -> " << person->role_description() << std::endl;
+
             res.code = 201;
             res.body = nlohmann::json({
                 {"success", true},
@@ -159,6 +205,12 @@ inline void register_auth_notification_routes(crow::SimpleApp& app, DatabaseMana
             }
 
             std::string token = auth.create_session(u);
+
+            // OOP demo: same Person hierarchy, dispatched polymorphically by role.
+            auto person = make_person(u);
+            std::cout << "[Auth Module] Login: " << person->full_name()
+                      << " -> " << person->role_description() << std::endl;
+
             res.code = 200;
             res.body = nlohmann::json({
                 {"success", true},
@@ -210,9 +262,24 @@ inline void register_auth_notification_routes(crow::SimpleApp& app, DatabaseMana
 
     // POST /api/worker/assessments/<int>/alert - ASHA Worker Module: Send Notification (Implemented by Yashwardhan Rohilla)
     CROW_ROUTE(app, "/api/worker/assessments/<int>/alert").methods(crow::HTTPMethod::Post)
-    ([&db](const crow::request& req, int assessment_id) {
+    ([&db, &auth](const crow::request& req, int assessment_id) {
         crow::response res;
         res.set_header("Content-Type", "application/json");
+
+        User worker;
+        if (!require_asha_worker(req, auth, worker, res)) return res;
+
+        std::string patient_area;
+        if (!db.get_assessment_area(assessment_id, patient_area)) {
+            res.code = 404;
+            res.body = nlohmann::json({{"error", "Assessment record not found."}}).dump();
+            return res;
+        }
+        if (!in_worker_area(worker, patient_area)) {
+            res.code = 403;
+            res.body = nlohmann::json({{"error", "This patient is outside your assigned area."}}).dump();
+            return res;
+        }
 
         std::string custom_message = "";
         try {

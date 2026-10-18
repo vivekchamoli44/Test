@@ -130,7 +130,6 @@ private:
             WinHttpCloseHandle(hSession);
             return "";
         }
-
         // Set HTTPS timeouts (10 seconds)
         WinHttpSetTimeouts(hRequest, 5000, 5000, 10000, 10000);
 
@@ -343,6 +342,7 @@ public:
         throw std::runtime_error("All free-tier Gemini models are currently unavailable. Last error: " + last_error);
     }
 };
+
 
 // Route Registration for Vivek Chamoli's AI Module
 inline void register_ai_assessment_routes(crow::SimpleApp& app, DatabaseManager& db, GeminiAIEngine& ai) {

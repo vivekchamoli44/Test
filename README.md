@@ -33,8 +33,6 @@ backend/
     ai_assessment.h         Module 2
     db_history.h            Module 3
     dashboard_triage.h       Module 4
-  config.json             Server port, MySQL credentials, Gemini key (fallback)
-  schema.sql              MySQL table definitions
   build.bat / run.bat     Build & run scripts (Windows, g++/MinGW)
   .env                    GEMINI_API_KEY and other secrets (not committed)
 frontend/
@@ -76,6 +74,10 @@ Files: [`backend/src/auth_notification.h`](backend/src/auth_notification.h), [`f
 - ASHA Worker action: dispatches a high-risk emergency alert notification
   to a patient/health sub-centre
   (`POST /api/worker/assessments/<id>/alert`).
+- OOP: on register/login, builds the role-specific `Patient`/`AshaWorker`
+  subclass (both derived from a `Person` base) and calls its virtual
+  `role_description()` through a `Person*` pointer — demonstrates
+  inheritance and runtime polymorphism (see `models.h`).
 
 ### 2. AI Integration with Gemini & Patient: Start New Assessment
 **Implemented by: Vivek Chamoli**
@@ -108,6 +110,9 @@ Files: [`backend/src/db_history.h`](backend/src/db_history.h), [`frontend/js/db_
 - Automated database integrity testing endpoint (`GET /api/db/test`).
 - Patient-facing "Show Previous Assessments" history
   (`GET /api/assessments/my?patient_id=<id>`).
+- DSA: a hand-written array-based binary max-heap (`AssessmentMaxHeap`),
+  keyed on `risk_score`, ranks the in-memory fallback's assessments
+  highest-risk-first for the ASHA dashboard — used in place of `std::sort`.
 
 ### 4. Patient & ASHA Worker Dashboard & ASHA Worker: High Risk Individual
 **Implemented by: Nandini**
@@ -132,14 +137,13 @@ Files: [`backend/src/dashboard_triage.h`](backend/src/dashboard_triage.h), [`fro
 - A Google Gemini API key ([ai.google.dev](https://ai.google.dev))
 
 ### Configure
-Copy the example config and fill in your own values — `backend/.env` and
-`backend/config.json` hold real secrets, so they're git-ignored and must
-never be committed:
+Copy the example env file and fill in your own values — `backend/.env`
+holds real secrets, so it's git-ignored and must never be committed:
 
 ```bash
 cd backend
-cp .env.example .env            # or: cp config.example.json config.json
-# then edit .env / config.json and set your GEMINI_API_KEY, MySQL creds, etc.
+cp .env.example .env
+# then edit .env and set your GEMINI_API_KEY, MySQL creds, etc.
 ```
 
 ```

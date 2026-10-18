@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
-
+    
 // 2. Handle Login / Sign Up Submit
 async function handleAuthSubmit(e) {
     e.preventDefault();
@@ -206,6 +206,25 @@ function getCurrentUser() {
     }
 }
 
+// Headers for API calls that need the logged-in session (ASHA worker routes)
+function authHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (localStorage.getItem('auth_token') || '')
+    };
+}
+
+// Sessions live in server memory, so a server restart invalidates the saved
+// token. On a 401, clear the stale session and send the user back to login.
+function handleSessionExpired(response) {
+    if (response.status !== 401) return false;
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_token');
+    showToast('Session expired. Please sign in again.', 'error');
+    setTimeout(function () { window.location.href = 'index.html'; }, 1200);
+    return true;
+}
+
 // 5. Navigate to the dashboard page that matches this role
 function openDashboard(role) {
     window.location.href = dashboardPageFor(role);
@@ -263,12 +282,13 @@ async function sendNotification(assessmentId, patientName, btnElement) {
     try {
         const response = await fetch('/api/worker/assessments/' + assessmentId + '/alert', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders(),
             body: JSON.stringify({
                 message: 'EMERGENCY ALERT: High risk flagged for ' + patientName + '. Please consult doctor immediately.'
             })
         });
 
+        if (handleSessionExpired(response)) return;
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Failed to dispatch alert');
 
@@ -288,5 +308,6 @@ async function sendNotification(assessmentId, patientName, btnElement) {
 window.AuthNotificationModule = {
     notify: showToast,
     sendNotification: sendNotification,
-    getUser: getCurrentUser
+    authHeaders: authHeaders,
+    handleSessionExpired: handleSessionExpired
 };

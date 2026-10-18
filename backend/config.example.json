@@ -1,9 +1,0 @@
-{
-  "server_port": 8080,
-  "mysql_host": "127.0.0.1",
-  "mysql_port": 3306,
-  "mysql_user": "root",
-  "mysql_password": "",
-  "mysql_database": "ai_health_center",
-  "gemini_api_key": "PUT_YOUR_GEMINI_API_KEY_HERE"
-}

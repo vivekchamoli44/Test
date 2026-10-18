@@ -2,7 +2,6 @@
 # (there was a stray duplicate at the project root as well as backend/.env).
 .env
 */.env
-backend/config.json
 
 # Build artifacts
 backend/server.exe

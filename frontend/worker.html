@@ -30,48 +30,17 @@
         <div class="hero-banner" style="background: linear-gradient(135deg, #0d9488, #0f766e);">
             <div>
                 <h2>ASHA Healthcare Triage Center</h2>
-                <p>Community Early Intervention & Prioritized Patient Outreach</p>
+                    <p id="worker-area-label" style="font-weight: 600; margin-top: 4px;"></p>
             </div>
         </div>
 
-        <!-- KPI Metrics -->
-        <div class="grid-4">
-            <div class="stat-box">
-                <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">👥</div>
-                <div><div class="stat-val" id="kpi-total">--</div><div class="stat-lbl">TOTAL PATIENTS</div></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon" style="background: #fee2e2; color: #dc2626;">🚨</div>
-                <div><div class="stat-val" id="kpi-critical" style="color: #dc2626;">--</div><div class="stat-lbl">CRITICAL RISK</div></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon" style="background: #ffedd5; color: #ea580c;">⚠️</div>
-                <div><div class="stat-val" id="kpi-high" style="color: #ea580c;">--</div><div class="stat-lbl">HIGH RISK</div></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">📢</div>
-                <div><div class="stat-val" id="kpi-alerts" style="color: #16a34a;">--</div><div class="stat-lbl">ALERTS DISPATCHED</div></div>
-            </div>
-        </div>
-
+    
         <!-- High Risk Individual Prioritization Table -->
         <section class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
                 <div>
-                    <h3 style="font-size: 1.25rem; font-weight: 800;">⚡ High Risk Individuals (Sorted: Highest to Lowest Risk)</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted);">
-                        Patients with the most acute clinical danger appear at the very top for urgent intervention.
-                    </p>
-                </div>
-                <div style="display: flex; gap: 0.75rem;">
-                    <input type="text" id="triage-search" class="form-input" style="width: 240px;" placeholder="🔍 Search patient, area...">
-                    <select id="triage-filter" class="form-select" style="width: 160px;">
-                        <option value="ALL">All Risk Levels</option>
-                        <option value="CRITICAL">Critical Only</option>
-                        <option value="HIGH">High Only</option>
-                        <option value="MODERATE">Moderate Only</option>
-                        <option value="LOW">Low Only</option>
-                    </select>
+                    <h3 style="font-size: 1.25rem; font-weight: 800;">High Risk Individuals (Sorted: Highest to Lowest Risk)</h3>
+                    
                 </div>
             </div>
 
@@ -161,17 +130,6 @@
                 </div>
             </div>
 
-            <div class="grid-2">
-                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem;">
-                    <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">🔍 Possible Chronic Diseases</h4>
-                    <div id="modal-diag-diseases"></div>
-                </div>
-
-                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem;">
-                    <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">⚠️ Symptoms to Watch Out For</h4>
-                    <ul id="modal-diag-other-sym" style="padding-left: 1.25rem; font-size: 0.88rem; margin: 0;"></ul>
-                </div>
-            </div>
 
             <div class="grid-2" style="margin-top: 1rem;">
                 <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem;">

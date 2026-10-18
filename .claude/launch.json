@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd backend && .\\run.bat"],
+      "port": 8080,
+      "autoPort": false
+    }
+  ]
+}

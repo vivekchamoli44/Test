@@ -20,20 +20,30 @@
 #include "crow_all.h"
 #include "models.h"
 #include "db_history.h"
+#include "auth_notification.h"
 #include "nlohmann/json.h"
 
 namespace health {
 
-inline void register_dashboard_triage_routes(crow::SimpleApp& app, DatabaseManager& db) {
+inline void register_dashboard_triage_routes(crow::SimpleApp& app, DatabaseManager& db, AuthSessionManager& auth) {
 
     // GET /api/worker/assessments - High Risk Individual Prioritization (Implemented by Nandini)
+    // Only returns patients from the logged-in ASHA worker's own village/area.
     CROW_ROUTE(app, "/api/worker/assessments").methods(crow::HTTPMethod::Get)
-    ([&db](const crow::request& /*req*/) {
+    ([&db, &auth](const crow::request& req) {
         crow::response res;
         res.set_header("Content-Type", "application/json");
 
+        User worker;
+        if (!require_asha_worker(req, auth, worker, res)) return res;
+
         // Assessments returned strictly sorted from HIGHEST risk score to LOWEST
-        auto assessments = db.get_all_assessments_sorted();
+        auto all_assessments = db.get_all_assessments_sorted();
+
+        std::vector<Assessment> assessments;
+        for (const auto& a : all_assessments) {
+            if (in_worker_area(worker, a.village_area)) assessments.push_back(a);
+        }
 
         nlohmann::json arr = nlohmann::json::array();
         int critical_count = 0;
@@ -43,7 +53,10 @@ inline void register_dashboard_triage_routes(crow::SimpleApp& app, DatabaseManag
         for (const auto& a : assessments) {
             arr.push_back(a.to_json());
             if (a.risk_level == "Critical") critical_count++;
-            else if (a.risk_level == "High") high_count++;
+            // High-risk KPI is score-based (risk_score > 80) rather than keyed off
+            // Gemini's free-text risk_level label, since that label has no fixed
+            // scoring band and won't reliably line up with a numeric threshold.
+            if (a.risk_score > 80) high_count++;
             if (a.alert_sent) alerts_sent_count++;
         }
 
@@ -52,6 +65,7 @@ inline void register_dashboard_triage_routes(crow::SimpleApp& app, DatabaseManag
             {"success", true},
             {"module", "ASHA Worker Module: High Risk Individual & Dashboard"},
             {"developer", "Nandini"},
+            {"village_area", worker.village_area},
             {"total_screenings", assessments.size()},
             {"critical_risk_count", critical_count},
             {"high_risk_count", high_count},
@@ -63,9 +77,24 @@ inline void register_dashboard_triage_routes(crow::SimpleApp& app, DatabaseManag
 
     // POST /api/worker/assessments/<int>/contact - Contact Patient & Outreach Logging (Implemented by Nandini)
     CROW_ROUTE(app, "/api/worker/assessments/<int>/contact").methods(crow::HTTPMethod::Post)
-    ([&db](const crow::request& req, int assessment_id) {
+    ([&db, &auth](const crow::request& req, int assessment_id){
         crow::response res;
         res.set_header("Content-Type", "application/json");
+
+        User worker;
+        if (!require_asha_worker(req, auth, worker, res)) return res;
+
+        std::string patient_area;
+        if (!db.get_assessment_area(assessment_id, patient_area)) {
+            res.code = 404;
+            res.body = nlohmann::json({{"error", "Assessment record not found."}}).dump();
+            return res;
+        }
+        if (!in_worker_area(worker, patient_area)) {
+            res.code = 403;
+            res.body = nlohmann::json({{"error", "This patient is outside your assigned area."}}).dump();
+            return res;
+        }
 
         std::string notes = "";
         try {

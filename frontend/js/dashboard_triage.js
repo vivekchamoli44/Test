@@ -6,7 +6,7 @@
  * What this code does:
  *  1. Fetches community patient screenings sorted by highest risk score.
  *  2. Updates summary KPI counts (Total, Critical, High Risk, Alerts).
- *  3. Displays patient triage table with quick Search and Filter.
+ *  3. Displays patient triage table.
  *  4. Provides direct patient contact (Call, WhatsApp, Outreach Notes).
  * ============================================================================
  */
@@ -15,16 +15,8 @@ let allPatients = [];
 let activePatient = null;
 
 document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('triage-search');
-    const filterSelect = document.getElementById('triage-filter');
     const closeContactBtn = document.getElementById('close-contact-modal');
 
-    if (searchInput) {
-        searchInput.addEventListener('input', applyFilter);
-    }
-    if (filterSelect) {
-        filterSelect.addEventListener('change', applyFilter);
-    }
     if (closeContactBtn) {
         closeContactBtn.addEventListener('click', function () {
             document.getElementById('contact-modal').classList.remove('active');
@@ -40,9 +32,20 @@ async function loadTriage() {
     tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">Loading patient records...</td></tr>';
 
     try {
-        const response = await fetch('/api/worker/assessments');
+        // Server returns only patients from this ASHA worker's own area
+        const auth = window.AuthNotificationModule;
+        const response = await fetch('/api/worker/assessments', { headers: auth.authHeaders() });
+        if (auth.handleSessionExpired(response)) return;
         const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Request failed');
         allPatients = data.assessments || [];
+
+        const areaLabel = document.getElementById('worker-area-label');
+        if (areaLabel) {
+            areaLabel.textContent = data.village_area
+                ? 'Showing patients from your area: ' + data.village_area
+                : 'No area is set on your account, so no patients can be shown.';
+        }
 
         // Update KPI metrics
         const elTotal = document.getElementById('kpi-total');
@@ -68,7 +71,7 @@ function renderTriageTable(patients) {
     if (!tbody) return;
 
     if (patients.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">No matching patients found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">No patients from your area yet.</td></tr>';
         return;
     }
 
@@ -154,22 +157,7 @@ function renderTriageTable(patients) {
     });
 }
 
-// 3. Search & Filter
-function applyFilter() {
-    const query = (document.getElementById('triage-search')?.value || '').toLowerCase();
-    const filter = (document.getElementById('triage-filter')?.value || 'ALL').toUpperCase();
-
-    const filtered = allPatients.filter(function (p) {
-        const matchesQuery = (p.patient_name || '').toLowerCase().includes(query) ||
-                             (p.village_area || '').toLowerCase().includes(query);
-        const matchesLevel = (filter === 'ALL') || (p.risk_level.toUpperCase() === filter);
-        return matchesQuery && matchesLevel;
-    });
-
-    renderTriageTable(filtered);
-}
-
-// 4. Open Patient Contact Modal (Shows only Name, Contact No, and Location)
+// 3. Open Patient Contact Modal (Shows only Name, Contact No, and Location)
 function openContact(item) {
     activePatient = item;
     const modal = document.getElementById('contact-modal');

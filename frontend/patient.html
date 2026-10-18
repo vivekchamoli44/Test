@@ -39,7 +39,6 @@
                 </button>
             </div>
         </div>
-
         <div class="patient-grid-layout">
             <!-- Left Main Content Column -->
             <div class="patient-main-content">
@@ -69,7 +68,6 @@
                             <div style="color: #047857; font-size: 0.85rem;">Clinical consultation recommended for targeted diagnostic testing and care plan.</div>
                         </div>
                     </div>
-
                     <div class="grid-2">
                         <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem;">
                             <h4 style="font-size: 0.92rem; font-weight: 700; margin-bottom: 0.5rem;">🔍 Possible Chronic Diseases</h4>
@@ -98,7 +96,6 @@
                 <!-- Previous Assessments Section -->
                 <section class="card">
                     <div class="card-title">📋 Previous Health Assessments</div>
-                    <p class="card-desc">Historical timeline of your screenings, reported symptoms, and physician recommendations.</p>
                     <div id="history-timeline-box"></div>
                 </section>
             </div>
@@ -113,9 +110,7 @@
                         </div>
                         <span id="patient-alert-badge" class="badge badge-low">0 Alerts</span>
                     </div>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">
-                        Emergency clinical notifications & referral instructions sent by your community healthcare worker.
-                    </p>
+                    
                     <div id="patient-alerts-list" class="alerts-stream">
                         <div style="text-align: center; padding: 18px 12px; background: #f0fdf4; border: 1px dashed #86efac; border-radius: 8px; color: #166534; font-size: 12px;">
                             <div style="font-size: 24px; margin-bottom: 6px;">✅</div>
@@ -231,6 +226,63 @@
                         </label>
                     </div>
                 </div>
+                <div class="question-category">
+                    <div class="category-title">
+                        <span>🧫</span>
+                        <span>Digestive, Kidney & Liver Warning Signs</span>
+                    </div>
+                    <div class="symptom-grid">
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Persistent abdominal pain, bloating or discomfort">
+                            <span class="symptom-label"><strong>Abdominal Pain / Bloating</strong><br><small style="color:var(--text-muted)">Recurring discomfort in the stomach area</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Blood in urine or stool, or unusually dark urine">
+                            <span class="symptom-label"><strong>Blood / Dark Urine or Stool</strong><br><small style="color:var(--text-muted)">Visible blood or unusual color change</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Yellowing of skin or eyes (jaundice)">
+                            <span class="symptom-label"><strong>Yellowing of Skin/Eyes</strong><br><small style="color:var(--text-muted)">Possible jaundice warning sign</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Loss of appetite with unintended weight loss">
+                            <span class="symptom-label"><strong>Appetite Loss / Weight Drop</strong><br><small style="color:var(--text-muted)">Unexplained and unintended</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Frequent nausea or vomiting episodes">
+                            <span class="symptom-label"><strong>Frequent Nausea / Vomiting</strong><br><small style="color:var(--text-muted)">Recurring episodes without clear cause</small></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-category">
+                    <div class="category-title">
+                        <span>🦴</span>
+                        <span>Musculoskeletal & Bone Health</span>
+                    </div>
+                    <div class="symptom-grid">
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Persistent joint pain, stiffness or swelling">
+                            <span class="symptom-label"><strong>Joint Pain / Stiffness</strong><br><small style="color:var(--text-muted)">Especially worse in the morning</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Bone or back pain that worsens with activity">
+                            <span class="symptom-label"><strong>Worsening Bone/Back Pain</strong><br><small style="color:var(--text-muted)">Increases with movement or exertion</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Noticeable loss of height or stooped posture">
+                            <span class="symptom-label"><strong>Height Loss / Stooped Posture</strong><br><small style="color:var(--text-muted)">Possible sign of bone density loss</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Muscle weakness or difficulty climbing stairs">
+                            <span class="symptom-label"><strong>Muscle Weakness</strong><br><small style="color:var(--text-muted)">Trouble with stairs or standing up</small></span>
+                        </label>
+                        <label class="symptom-card">
+                            <input type="checkbox" name="symptom_item" value="Fracture from a minor fall or bump">
+                            <span class="symptom-label"><strong>Fracture from Minor Fall</strong><br><small style="color:var(--text-muted)">Broke a bone from a low-impact injury</small></span>
+                        </label>
+                    </div>
+                </div>
 
                 <div class="question-category">
                     <div class="category-title">
@@ -272,6 +324,9 @@
                                 <label><input type="checkbox" name="family_hist" value="Family history of Type 2 Diabetes"> Type 2 Diabetes</label>
                                 <label><input type="checkbox" name="family_hist" value="Family history of Hypertension"> Chronic High Blood Pressure</label>
                                 <label><input type="checkbox" name="family_hist" value="Family history of Stroke"> Stroke or Paralysis</label>
+                                <label><input type="checkbox" name="family_hist" value="Family history of Cancer"> Cancer (any type)</label>
+                                <label><input type="checkbox" name="family_hist" value="Family history of Kidney Disease"> Chronic Kidney Disease</label>
+                                <label><input type="checkbox" name="family_hist" value="Family history of Thyroid Disorder"> Thyroid Disorder</label>
                             </div>
                         </div>
                         <div>
@@ -281,6 +336,8 @@
                                 <label><input type="checkbox" name="lifestyle_hist" value="Sedentary lifestyle with minimal physical activity"> Sedentary lifestyle (&lt;30m exercise/week)</label>
                                 <label><input type="checkbox" name="lifestyle_hist" value="High sodium / processed foods diet"> High sodium / salty / packaged diet</label>
                                 <label><input type="checkbox" name="lifestyle_hist" value="High persistent work or mental stress"> Chronic high psychological stress</label>
+                                <label><input type="checkbox" name="lifestyle_hist" value="Regular alcohol consumption"> Regular alcohol consumption</label>
+                                <label><input type="checkbox" name="lifestyle_hist" value="Less than 6 hours of sleep per night"> Poor sleep (&lt;6 hours/night)</label>
                             </div>
                         </div>
                     </div>

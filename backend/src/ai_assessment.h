@@ -33,6 +33,7 @@
 #include "crow_all.h"
 #include "models.h"
 #include "db_history.h"
+#include "clinical_standards_reference.h"
 #include "nlohmann/json.h"
 
 #pragma comment(lib, "winhttp.lib")
@@ -130,10 +131,13 @@ private:
             WinHttpCloseHandle(hSession);
             return "";
         }
-        // Set HTTPS timeouts (10 seconds)
-        WinHttpSetTimeouts(hRequest, 5000, 5000, 10000, 10000);
+        // Set HTTPS timeouts (15 seconds)
+        WinHttpSetTimeouts(hRequest, 8000, 8000, 15000, 15000);
 
         std::wstring headers = L"Content-Type: application/json\r\n";
+        if (!api_key_.empty()) {
+            headers += L"x-goog-api-key: " + to_wide(api_key_) + L"\r\n";
+        }
         BOOL bResults = WinHttpSendRequest(hRequest, headers.c_str(), (DWORD)headers.length(),
                                            (LPVOID)json_body.c_str(), (DWORD)json_body.length(),
                                            (DWORD)json_body.length(), 0);
@@ -185,7 +189,9 @@ private:
     AIResult request_gemini_assessment(const Assessment& req, const std::string& model) {
         std::string prompt =
             "You are an expert AI clinical health diagnostician specialized in early chronic disease detection and community triage for ASHA health workers in India.\n"
-            "Evaluate this patient's assessment data carefully:\n"
+            "You MUST strictly ground your clinical evaluation on the following authoritative ICMR & WHO Non-Communicable Disease (NCD) Reference Guidelines:\n"
+            + get_clinical_reference_prompt_section() + "\n\n"
+            "Evaluate this patient's assessment data carefully against the above clinical benchmarks:\n"
             "- Age: " + std::to_string(req.age) + "\n"
             "- Gender: " + req.gender + "\n"
             "- Patient Reported Symptoms & Duration: " + req.symptoms_text + "\n"
@@ -298,13 +304,11 @@ public:
             throw std::runtime_error("Gemini API key is not configured. Set GEMINI_API_KEY in .env or config.json.");
         }
 
-        // Free-tier models only, ordered by typical free daily quota (highest first).
-        // Pro/preview/experimental models are intentionally excluded — their free-tier
-        // quotas are far smaller and exhaust almost immediately under real usage.
+        // Current Gemini models (gemini-3.8-flash and gemini-3.5-flash-lite)
         static const std::vector<std::string> models = {
-            "gemini-flash-lite-latest",
-            "gemini-2.5-flash-lite",
-            "gemini-2.5-flash"
+            "gemini-3.8-flash",
+            "gemini-3.5-flash-lite",
+            "gemini-3.8-pro"
         };
         const int max_attempts_per_model = 2;
         std::string last_error = "Unknown error.";

@@ -52,8 +52,9 @@ async function loadHistory(patientId, isSilent) {
 
             card.innerHTML = `
                 <div>
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
                         <strong>Assessment #${item.id}</strong>
+                        <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 6px; border-radius: 4px; font-weight: 700; border: 1px solid #bae6fd;">Patient ID: #${item.patient_id}</span>
                         <span class="badge ${badgeClass}">${item.risk_level} (${item.risk_score}/100)</span>
                         ${item.alert_sent ? '<span class="alert-flag">🚨 Alert Dispatched</span>' : ''}
                     </div>

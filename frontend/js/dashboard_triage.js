@@ -60,6 +60,11 @@ async function loadTriage() {
 
         renderTriageTable(allPatients);
 
+        // Build O(1) Hash Search Index for fast patient searching
+        if (window.PatientHashSearchModule) {
+            window.PatientHashSearchModule.buildIndex(allPatients);
+        }
+
     } catch (err) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #ef4444; padding: 20px;">Error loading patients: ' + err.message + '</td></tr>';
     }
@@ -71,7 +76,7 @@ function renderTriageTable(patients) {
     if (!tbody) return;
 
     if (patients.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">No patients from your area yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">No patients found.</td></tr>';
         return;
     }
 
@@ -101,8 +106,11 @@ function renderTriageTable(patients) {
                 <span class="badge ${badgeClass}" style="margin-left: 6px;">${item.risk_level}</span>
             </td>
             <td>
-                <strong>${item.patient_name}</strong>
-                <div style="font-size: 12px; color: var(--text-muted);">Age: ${item.age} | ${item.gender} | ${item.village_area}</div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <strong>${item.patient_name}</strong>
+                    <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 7px; border-radius: 6px; font-weight: 700; border: 1px solid #bae6fd;">ID: #${item.patient_id || item.id}</span>
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Age: ${item.age} | ${item.gender} | ${item.village_area}</div>
             </td>
             <td>
                 <div style="max-width: 210px;" title="${fullSymptomsSafe}">
@@ -164,10 +172,12 @@ function openContact(item) {
     if (!modal) return;
 
     const nameEl = document.getElementById('modal-patient-name');
+    const idEl = document.getElementById('modal-patient-id');
     const phoneEl = document.getElementById('modal-patient-phone');
     const areaEl = document.getElementById('modal-patient-area');
 
     if (nameEl) nameEl.textContent = item.patient_name || '--';
+    if (idEl) idEl.textContent = '#' + (item.patient_id || item.id);
     if (phoneEl) phoneEl.textContent = item.phone || '--';
     if (areaEl) areaEl.textContent = item.village_area || '--';
 
@@ -176,5 +186,7 @@ function openContact(item) {
 
 // Export module functions
 window.DashboardTriageModule = {
-    loadTriage: loadTriage
+    loadTriage: loadTriage,
+    render: renderTriageTable,
+    getAllPatients: function () { return allPatients; }
 };

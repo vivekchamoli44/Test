@@ -45,8 +45,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isPatientPage && window.DbHistoryModule) {
             window.DbHistoryModule.loadHistory(user.id);
         }
+        if (isPatientPage && window.LabBookingModule) {
+            window.LabBookingModule.loadPatientBookings(user.id);
+        }
         if (isWorkerPage && window.DashboardTriageModule) {
             window.DashboardTriageModule.loadTriage();
+        }
+        if (isWorkerPage && window.LabBookingModule) {
+            window.LabBookingModule.loadWorkerPhlebotomyQueue();
         }
     } else if (user && user.role) {
         // Already logged in and sitting on the login page — go to the dashboard.
@@ -245,7 +251,42 @@ function setupNavUser(user) {
                 return c.toUpperCase();
             });
         }
+        if (user.role === 'patient' && user.id) {
+            displayName += ' (ID: #' + user.id + ')';
+        }
         nameEl.textContent = displayName;
+    }
+
+    // Populate Patient Dashboard top hero banner with Name and Patient ID
+    const welcomeEl = document.getElementById('patient-welcome-heading');
+    const badgeEl = document.getElementById('patient-id-badge');
+    const subDetailsEl = document.getElementById('patient-sub-details');
+
+    if (user && user.role === 'patient') {
+        let cleanName = user.full_name || '';
+        if (!cleanName || cleanName.includes('@')) {
+            let raw = (cleanName || user.email || user.username || 'Patient').split('@')[0];
+            cleanName = raw.replace(/[._-]+/g, ' ').replace(/\b\w/g, function (c) {
+                return c.toUpperCase();
+            });
+        }
+        if (welcomeEl) {
+            welcomeEl.textContent = cleanName ? ('Welcome, ' + cleanName) : 'Patient Health Dashboard';
+        }
+        if (badgeEl) {
+            badgeEl.textContent = 'Patient ID: #' + (user.id || 2);
+            badgeEl.style.display = 'inline-block';
+        }
+        if (subDetailsEl) {
+            let details = [];
+            if (user.age) details.push('Age: ' + user.age);
+            if (user.gender) details.push(user.gender);
+            if (user.village_area) details.push('Area: ' + user.village_area);
+            if (user.phone) details.push('Phone: ' + user.phone);
+            if (details.length > 0) {
+                subDetailsEl.textContent = details.join(' | ');
+            }
+        }
     }
 }
 

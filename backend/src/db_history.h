@@ -34,7 +34,7 @@ namespace health {
 // heap: insert is O(log n) via sift-up, extract-max is O(log n) via sift-down,
 // so draining n items into sorted order is O(n log n) overall (heapsort).
 // ============================================================================
-class AssessmentMaxHeap {
+class AssessmentMaxHeap{
 private:
     std::vector<Assessment> data_;
 
@@ -461,123 +461,123 @@ public:
                 }
             }
         } else {
-            // DSA: use the hand-written max-heap instead of std::sort to rank
-            // the in-memory fallback's assessments highest-risk-first.
-            AssessmentMaxHeap heap;
-            for (const auto& a : memory_assessments_) heap.insert(a);
-            list = heap.drain_sorted();
+                // DSA: use the hand-written max-heap instead of std::sort to rank
+                // the in-memory fallback's assessments highest-risk-first.
+                AssessmentMaxHeap heap;
+                for (const auto& a : memory_assessments_) heap.insert(a);
+                list = heap.drain_sorted();
+            }
+            return list;
         }
-        return list;
-    }
 
-    // Looks up which area an assessment belongs to, so ASHA worker actions can
-    // be checked against the worker's own area. Returns false if no such record.
-    bool get_assessment_area(int assessment_id, std::string& out_area) {
-        std::lock_guard<std::mutex> lock(db_mutex_);
-        if (is_connected_) {
-            bool found = false;
-            std::string q = "SELECT village_area FROM assessments WHERE id = " + std::to_string(assessment_id) + " LIMIT 1;";
-            if (mysql_query(conn_, q.c_str()) == 0) {
-                MYSQL_RES* res = mysql_store_result(conn_);
-                if (res) {
-                    MYSQL_ROW row = mysql_fetch_row(res);
-                    if (row) {
-                        out_area = row[0] ? row[0] : "";
-                        found = true;
+        // Looks up which area an assessment belongs to, so ASHA worker actions can
+        // be checked against the worker's own area. Returns false if no such record.
+        bool get_assessment_area(int assessment_id, std::string& out_area) {
+            std::lock_guard<std::mutex> lock(db_mutex_);
+            if (is_connected_) {
+                bool found = false;
+                std::string q = "SELECT village_area FROM assessments WHERE id = " + std::to_string(assessment_id) + " LIMIT 1;";
+                if (mysql_query(conn_, q.c_str()) == 0) {
+                    MYSQL_RES* res = mysql_store_result(conn_);
+                    if (res) {
+                        MYSQL_ROW row = mysql_fetch_row(res);
+                        if (row) {
+                            out_area = row[0] ? row[0] : "";
+                            found = true;
+                        }
+                        mysql_free_result(res);
                     }
-                    mysql_free_result(res);
                 }
-            }
-            return found;
-        } else {
-            for (const auto& a : memory_assessments_) {
-                if (a.id == assessment_id) {
-                    out_area = a.village_area;
-                    return true;
+                return found;
+            } else {
+                for (const auto& a : memory_assessments_) {
+                    if (a.id == assessment_id) {
+                        out_area = a.village_area;
+                        return true;
+                    }
                 }
+                return false;
             }
-            return false;
         }
+
+        bool update_alert(int assessment_id, const std::string& message) {
+            std::lock_guard<std::mutex> lock(db_mutex_);
+            if (is_connected_) {
+                std::string q = "UPDATE assessments SET alert_sent = 1, alert_sent_at = NOW(), alert_message = '" + escape(message) + "' WHERE id = " + std::to_string(assessment_id) + ";";
+                return mysql_query(conn_, q.c_str()) == 0;
+            } else {
+                for (auto& a : memory_assessments_) {
+                    if (a.id == assessment_id) {
+                        a.alert_sent = true;
+                        a.alert_sent_at = "Just now";
+                        a.alert_message = message;
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        bool log_contact(int assessment_id, const std::string& notes) {
+            std::lock_guard<std::mutex> lock(db_mutex_);
+            if (is_connected_) {
+                std::string q = "UPDATE assessments SET asha_contacted = 1, asha_notes = '" + escape(notes) + "' WHERE id = " + std::to_string(assessment_id) + ";";
+                return mysql_query(conn_, q.c_str()) == 0;
+            } else {
+                for (auto& a : memory_assessments_) {
+                    if (a.id == assessment_id) {
+                        a.asha_contacted = true;
+                        a.asha_notes = notes;
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+    };
+
+    inline void register_db_history_routes(crow::SimpleApp& app, DatabaseManager& db) {
+        // GET /api/assessments/my - Show Previous Assessments (Implemented by Anjali)
+        CROW_ROUTE(app, "/api/assessments/my").methods(crow::HTTPMethod::Get)
+        ([&db](const crow::request& req) {
+            crow::response res;
+            res.set_header("Content-Type", "application/json");
+
+            std::string pid_str = req.url_params.get("patient_id") ? req.url_params.get("patient_id") : "2";
+            int patient_id = std::atoi(pid_str.c_str());
+
+            auto history = db.show_previous_assessments(patient_id);
+            nlohmann::json arr = nlohmann::json::array();
+            for (const auto& h : history) arr.push_back(h.to_json());
+
+            res.code = 200;
+            res.body = nlohmann::json({
+                {"success", true},
+                {"module", "Patient: Show Previous Assessment"},
+                {"developer", "Anjali"},
+                {"total_records", history.size()},
+                {"assessments", arr}
+            }).dump();
+            return res;
+        });
+
+        // GET /api/db/test - Database & Testing (Implemented by Anjali)
+        CROW_ROUTE(app, "/api/db/test").methods(crow::HTTPMethod::Get)
+        ([&db]() {
+            crow::response res;
+            res.set_header("Content-Type", "application/json");
+            res.body = nlohmann::json({
+                {"module", "Database and Testing"},
+                {"developer", "Anjali"},
+                {"mysql_active", db.is_connected()},
+                {"unit_tests", {
+                    {"connection_test", "PASSED"},
+                    {"schema_validation", "PASSED"},
+                    {"query_integrity", "PASSED"}
+                }}
+            }).dump();
+            return res;
+        });
     }
 
-    bool update_alert(int assessment_id, const std::string& message) {
-        std::lock_guard<std::mutex> lock(db_mutex_);
-        if (is_connected_) {
-            std::string q = "UPDATE assessments SET alert_sent = 1, alert_sent_at = NOW(), alert_message = '" + escape(message) + "' WHERE id = " + std::to_string(assessment_id) + ";";
-            return mysql_query(conn_, q.c_str()) == 0;
-        } else {
-            for (auto& a : memory_assessments_) {
-                if (a.id == assessment_id) {
-                    a.alert_sent = true;
-                    a.alert_sent_at = "Just now";
-                    a.alert_message = message;
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    bool log_contact(int assessment_id, const std::string& notes) {
-        std::lock_guard<std::mutex> lock(db_mutex_);
-        if (is_connected_) {
-            std::string q = "UPDATE assessments SET asha_contacted = 1, asha_notes = '" + escape(notes) + "' WHERE id = " + std::to_string(assessment_id) + ";";
-            return mysql_query(conn_, q.c_str()) == 0;
-        } else {
-            for (auto& a : memory_assessments_) {
-                if (a.id == assessment_id) {
-                    a.asha_contacted = true;
-                    a.asha_notes = notes;
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-};
-
-inline void register_db_history_routes(crow::SimpleApp& app, DatabaseManager& db) {
-    // GET /api/assessments/my - Show Previous Assessments (Implemented by Anjali)
-    CROW_ROUTE(app, "/api/assessments/my").methods(crow::HTTPMethod::Get)
-    ([&db](const crow::request& req) {
-        crow::response res;
-        res.set_header("Content-Type", "application/json");
-
-        std::string pid_str = req.url_params.get("patient_id") ? req.url_params.get("patient_id") : "2";
-        int patient_id = std::atoi(pid_str.c_str());
-
-        auto history = db.show_previous_assessments(patient_id);
-        nlohmann::json arr = nlohmann::json::array();
-        for (const auto& h : history) arr.push_back(h.to_json());
-
-        res.code = 200;
-        res.body = nlohmann::json({
-            {"success", true},
-            {"module", "Patient: Show Previous Assessment"},
-            {"developer", "Anjali"},
-            {"total_records", history.size()},
-            {"assessments", arr}
-        }).dump();
-        return res;
-    });
-
-    // GET /api/db/test - Database & Testing (Implemented by Anjali)
-    CROW_ROUTE(app, "/api/db/test").methods(crow::HTTPMethod::Get)
-    ([&db]() {
-        crow::response res;
-        res.set_header("Content-Type", "application/json");
-        res.body = nlohmann::json({
-            {"module", "Database and Testing"},
-            {"developer", "Anjali"},
-            {"mysql_active", db.is_connected()},
-            {"unit_tests", {
-                {"connection_test", "PASSED"},
-                {"schema_validation", "PASSED"},
-                {"query_integrity", "PASSED"}
-            }}
-        }).dump();
-        return res;
-    });
-}
-
-} // namespace health
+    } // namespace health

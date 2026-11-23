@@ -26,6 +26,8 @@
 #include "ai_assessment.h"
 #include "auth_notification.h"
 #include "dashboard_triage.h"
+#include "patient_hash_search.h"
+#include "lab_test_booking.h"
 
 namespace fs = std::filesystem;
 
@@ -99,6 +101,8 @@ int main() {
     health::register_ai_assessment_routes(app, db, ai);    // Vivek Chamoli's Module
     health::register_auth_notification_routes(app, db, auth); // Yashwardhan Rohilla's Module
     health::register_dashboard_triage_routes(app, db, auth);   // Nandini's Module
+    health::register_patient_hash_search_routes(app, db, auth); // Patient Search via Hashing (DSA Module)
+    health::register_lab_test_booking_routes(app, db, auth);    // Lab Test Booking (Interval Tree + Max-Heap DSA)
 
     // Frontend Static Assets Serving
     auto serve_page = [](const std::string& page_file) {

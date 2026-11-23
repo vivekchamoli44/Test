@@ -227,7 +227,7 @@ function renderReport(a, openModal) {
             mBadge.textContent = a.risk_level + ' Risk';
         }
         if (mPatient) mPatient.textContent = (a.patient_name || 'Patient') + ' - Clinical Assessment Report';
-        if (mMeta) mMeta.textContent = 'Age: ' + (a.age || '--') + ' | Area: ' + (a.village_area || '--') + ' | Phone: ' + (a.phone || '--');
+        if (mMeta) mMeta.textContent = 'Patient ID: #' + (a.patient_id || a.id) + ' | Age: ' + (a.age || '--') + ' | Area: ' + (a.village_area || '--') + ' | Phone: ' + (a.phone || '--');
         if (mTime) mTime.textContent = a.created_at || 'Just now';
         if (mDoctor) mDoctor.textContent = a.recommended_doctor || 'General Physician';
         if (mActions) mActions.textContent = a.immediate_actions || 'Consult physician.';

@@ -30,8 +30,11 @@
         <!-- Hero Action Bar -->
         <div class="hero-banner">
             <div>
-                <h2>Patient Health Dashboard</h2>
-                <p>Early Chronic Disease Detection & Personalized Risk Evaluation</p>
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <h2 id="patient-welcome-heading" style="margin: 0;">Patient Health Dashboard</h2>
+                    <span id="patient-id-badge" class="badge" style="background: rgba(255, 255, 255, 0.22); color: #ffffff; border: 1.5px solid rgba(255, 255, 255, 0.5); font-size: 0.95rem; padding: 4px 12px; border-radius: 20px; font-weight: 700;">Patient ID: #--</span>
+                </div>
+                <p id="patient-sub-details" style="margin-top: 6px; opacity: 0.95;">Early Chronic Disease Detection & Personalized Risk Evaluation</p>
             </div>
             <div>
                 <button id="open-assess-modal" class="btn btn-primary" style="background: white; color: var(--primary-dark); font-size: 0.95rem; padding: 0.75rem 1.25rem;">
@@ -55,7 +58,7 @@
                                     <h3 style="font-size: 1.3rem; font-weight: 700;">AI Chronic Risk Assessment</h3>
                                     <span id="diag-badge" class="badge">--</span>
                                 </div>
-                                <p style="font-size: 0.85rem; color: var(--text-muted);">Model Engine: Google Gemini Clinical AI & Biomarker Calibrations</p>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);">Model Engine: Google Gemini Clinical AI &bull; Grounded on ICMR &amp; WHO Guidelines</p>
                             </div>
                         </div>
                     </div>
@@ -92,6 +95,84 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Book Diagnostic Lab Test Section (DSA 1: Interval Tree Slot Scheduling) -->
+                <section class="card" style="border-top: 4px solid var(--primary);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <div>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-main);">🧪 Book Diagnostic Lab Test</h3>
+                            <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
+                                Conflict-free time slot booking verified via <strong style="color: var(--primary);">Augmented Interval Tree (O(log N))</strong>
+                            </p>
+                        </div>
+                        <span id="lab-fasting-tag" class="badge badge-high" style="display: none;"></span>
+                    </div>
+
+                    <!-- Step 1: Select Test, Date & Timing (Clean 3-Dropdown Grid) -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 6px;">
+                                1. Select Diagnostic Test
+                            </label>
+                            <select id="lab-test-select" class="form-control" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--border); font-size: 0.9rem; background: #fff;">
+                                <option value="">Loading lab catalog...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 6px;">
+                                2. Preferred Date
+                            </label>
+                            <input type="date" id="lab-date-select" class="form-control" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1.5px solid var(--border); font-size: 0.9rem; background: #fff;" />
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin: 0;">
+                                    3. Select Timing Slot
+                                </label>
+                                <small style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">O(log N) Conflict-Free</small>
+                            </div>
+                            <select id="lab-slot-select" class="form-control" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--border); font-size: 0.9rem; background: #fff;">
+                                <option value="">-- Choose Date to View Slots --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Preparation Note Box -->
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 1.25rem; font-size: 0.84rem; color: #166534;">
+                        ℹ️ <strong style="color: #14532d;">Preparation Instructions:</strong> <span id="lab-prep-note">Select a diagnostic test above to see medical preparation details.</span>
+                    </div>
+
+                    <!-- Step 4: Summary & Confirm Button -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                        <div id="lab-booking-summary" style="font-size: 0.88rem; color: var(--text-muted); font-weight: 500; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; flex: 1; min-width: 260px;">
+                            Select a diagnostic test, date, and timing slot above.
+                        </div>
+                        <button type="button" id="btn-confirm-lab-book" class="btn btn-primary" style="padding: 11px 26px; font-weight: 700; font-size: 0.95rem; cursor: pointer;">
+                            Confirm Lab Appointment
+                        </button>
+                    </div>
+
+                    <!-- My Lab Bookings Sub-Table -->
+                    <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem;">📅 My Scheduled Lab Tests</h4>
+                        <div class="triage-table-wrapper">
+                            <table class="triage-table" style="font-size: 0.88rem;">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Test Details</th>
+                                        <th>Date & Slot</th>
+                                        <th>Status</th>
+                                        <th>Booked On</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="patient-lab-bookings-tbody">
+                                    <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 12px;">Loading bookings...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
 
                 <!-- Previous Assessments Section -->
                 <section class="card">
@@ -437,5 +518,7 @@
     <script src="/js/ai_assessment.js"></script>
     <!-- Database and Testing & Patient: Show Previous Assessment (Anjali) -->
     <script src="/js/db_history.js"></script>
+    <!-- Diagnostic Lab Test Booking Module (Interval Tree + Max-Heap DSA) -->
+    <script src="/js/lab_booking.js?v=20261123_4"></script>
 </body>
 </html>

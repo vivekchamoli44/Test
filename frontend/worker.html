@@ -40,7 +40,18 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
                 <div>
                     <h3 style="font-size: 1.25rem; font-weight: 800;">High Risk Individuals (Sorted: Highest to Lowest Risk)</h3>
-                    
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">Community screening records sorted by clinical risk priority</p>
+                </div>
+
+                <!-- Patient Search using Hashing (O(1) Lookup) -->
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <div style="position: relative; width: 280px; max-width: 100%;">
+                        <input type="text" id="patient-search-input" placeholder="🔍 Search Name, Phone, or ID..." 
+                               style="width: 100%; padding: 7px 30px 7px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.88rem; outline: none;" />
+                        <button type="button" id="patient-search-clear" title="Clear search"
+                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.1rem; color: var(--text-muted); cursor: pointer; display: none; line-height: 1;">&times;</button>
+                    </div>
+                    <span id="search-result-count" style="display: none; font-size: 0.78rem; font-weight: 700; color: var(--primary-dark); background: var(--primary-light); padding: 4px 8px; border-radius: 6px;"></span>
                 </div>
             </div>
 
@@ -62,6 +73,48 @@
                 </table>
             </div>
         </section>
+
+        <!-- Diagnostic Lab Sample Collection & Phlebotomy Triage Queue (DSA 2: Max-Heap Priority Queue) -->
+        <section class="card" style="margin-top: 1.5rem; border-top: 4px solid #0d9488;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">🧪 Phlebotomy & Lab Sample Collection Queue</h3>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
+                        Samples prioritized by clinical urgency via <strong style="color: var(--accent);">Binary Max-Heap Priority Queue (O(log K))</strong>
+                    </p>
+                </div>
+                <!-- KPI Badges -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 4px 10px; font-size: 0.8rem;">
+                        Pending: <strong id="lab-kpi-total" style="color: var(--primary-dark);">0</strong>
+                    </div>
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 4px 10px; font-size: 0.8rem; color: #991b1b;">
+                        🚨 Critical Urgency: <strong id="lab-kpi-critical">0</strong>
+                    </div>
+                    <div style="background: #fefce8; border: 1px solid #fef08a; border-radius: 8px; padding: 4px 10px; font-size: 0.8rem; color: #854d0e;">
+                        ⚠️ Fasting Needed: <strong id="lab-kpi-fasting">0</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="triage-table-wrapper">
+                <table class="triage-table">
+                    <thead>
+                        <tr>
+                            <th>Triage Priority</th>
+                            <th>Patient Information</th>
+                            <th>Test & Sample Required</th>
+                            <th>Scheduled Slot</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="worker-lab-queue-tbody">
+                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 16px;">Loading lab collection queue...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
     <!-- Contact Patient Modal -->
@@ -74,9 +127,15 @@
             </div>
 
             <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 14px;">
-                <div>
-                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Patient Name</div>
-                    <div id="modal-patient-name" style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-top: 2px;">--</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Patient Name</div>
+                        <div id="modal-patient-name" style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-top: 2px;">--</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Patient ID</div>
+                        <div id="modal-patient-id" style="font-size: 1.1rem; font-weight: 800; color: var(--primary); margin-top: 2px;">--</div>
+                    </div>
                 </div>
                 <div>
                     <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Contact Number</div>
@@ -157,5 +216,9 @@
     <script src="/js/ai_assessment.js"></script>
     <!-- Patient & ASHA Worker Dashboard & ASHA Worker: High Risk Individual (Nandini) -->
     <script src="/js/dashboard_triage.js"></script>
+    <!-- ASHA Worker Patient Search via Hashing (DSA Module) -->
+    <script src="/js/patient_hash_search.js"></script>
+    <!-- Diagnostic Lab Test Booking & Phlebotomy Triage Module (DSA Module) -->
+    <script src="/js/lab_booking.js"></script>
 </body>
 </html>

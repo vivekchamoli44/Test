@@ -505,3 +505,52 @@ body {
     padding-top: 6px;
     margin-top: 6px;
 }
+
+/* Lab Booking Slot Styles (Interval Tree) */
+.slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.slot-btn {
+    background: #ffffff;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    color: var(--text-main);
+}
+
+.slot-btn:hover:not(:disabled) {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.slot-btn.selected {
+    background: var(--primary);
+    border-color: var(--primary-dark);
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);
+}
+
+.slot-btn.slot-booked {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #94a3b8;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.btn:disabled, button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#lab-booking-summary {
+    transition: all 0.2s ease;
+}

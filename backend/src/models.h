@@ -114,6 +114,106 @@ struct AIResult {
 };
 
 // ============================================================================
+// ASHA Worker Equipment & Inventory Item Model
+// ============================================================================
+struct InventoryItem {
+    int id = 0;
+    int worker_id = 0;
+    std::string village_area;
+    std::string item_name;
+    std::string category = "Diagnostic"; // "Diagnostic", "Consumable", "Medication", "Equipment"
+    int quantity = 0;
+    std::string unit = "units";          // "units", "strips", "packets", "tablets", "kits"
+    std::string status = "Available";    // "Available", "Low Stock", "Out of Stock", "Needs Maintenance"
+    std::string last_inspected = "Recently";
+    std::string updated_at;
+
+    nlohmann::json to_json() const {
+        return {
+            {"id", id},
+            {"worker_id", worker_id},
+            {"village_area", village_area},
+            {"item_name", item_name},
+            {"category", category},
+            {"quantity", quantity},
+            {"unit", unit},
+            {"status", status},
+            {"last_inspected", last_inspected},
+            {"updated_at", updated_at}
+        };
+    }
+};
+
+// ============================================================================
+// Lab Test Booking & Catalog Models
+// ============================================================================
+struct LabCatalogItem {
+    std::string code;
+    std::string name;
+    std::string category;           // "Cardiovascular", "Diabetes", "Hematology", "Renal", "Respiratory"
+    std::string sample_type;        // "Blood", "Urine", "Sputum", "Diagnostic"
+    bool fasting_required = false;
+    std::string preparation_note;
+    std::string turnaround_time;
+    int price_inr = 0;              // Subsidized community rate
+
+    nlohmann::json to_json() const {
+        return {
+            {"code", code},
+            {"name", name},
+            {"category", category},
+            {"sample_type", sample_type},
+            {"fasting_required", fasting_required},
+            {"preparation_note", preparation_note},
+            {"turnaround_time", turnaround_time},
+            {"price_inr", price_inr}
+        };
+    }
+};
+
+struct LabBooking {
+    int id = 0;
+    int patient_id = 0;
+    std::string patient_name;
+    std::string phone;
+    std::string village_area;
+    std::string test_name;
+    std::string test_code;
+    std::string sample_type;       // "Blood", "Urine", "Sputum", "Diagnostic"
+    bool fasting_required = false;
+    std::string booking_date;      // "YYYY-MM-DD"
+    int slot_start = 540;          // Minutes from midnight (e.g. 540 = 09:00 AM)
+    int slot_end = 570;            // Minutes from midnight (e.g. 570 = 09:30 AM)
+    std::string slot_label;        // "09:00 AM - 09:30 AM"
+    int risk_score = 0;            // Patient AI risk score (0 - 100)
+    int priority_score = 50;       // Computed triage collection priority
+    std::string status = "Confirmed"; // "Confirmed", "Sample Collected", "Completed"
+    std::string created_at;
+
+    nlohmann::json to_json() const {
+        return {
+            {"id", id},
+            {"patient_id", patient_id},
+            {"patient_name", patient_name},
+            {"phone", phone},
+            {"village_area", village_area},
+            {"test_name", test_name},
+            {"test_code", test_code},
+            {"sample_type", sample_type},
+            {"fasting_required", fasting_required},
+            {"booking_date", booking_date},
+            {"slot_start", slot_start},
+            {"slot_end", slot_end},
+            {"slot_label", slot_label},
+            {"risk_score", risk_score},
+            {"priority_score", priority_score},
+            {"status", status},
+            {"created_at", created_at}
+        };
+    }
+};
+
+// ============================================================================
 // OOP: Person / Patient / AshaWorker hierarchy (inheritance + polymorphism)
 // ----------------------------------------------------------------------------
 // `User` above stays the plain storage/API record (what gets saved to MySQL

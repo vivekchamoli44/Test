@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include "nlohmann/json.h"
-namespace health {\
+namespace health {
 struct User {
     int id = 0;
     std::string username; // Also serves as/mirrors email

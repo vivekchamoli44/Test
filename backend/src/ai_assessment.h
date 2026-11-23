@@ -28,6 +28,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
+#include <stdexcept>
 #ifdef _WIN32
 #include <windows.h>
 #include <winhttp.h>

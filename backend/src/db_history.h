@@ -19,6 +19,8 @@
 #include <utility>
 #include <chrono>
 #include <iomanip>
+#include <ctime>
+#include <cstdlib>
 #if defined(__has_include)
   #if __has_include(<mysql/mysql.h>)
     #include <mysql/mysql.h>

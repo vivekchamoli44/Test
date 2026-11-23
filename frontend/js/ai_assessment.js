@@ -11,31 +11,41 @@
  * ============================================================================
  */
 
-document.addEventListener('DOMContentLoaded', function () {
+function initAiAssessment() {
     const openBtn = document.getElementById('open-assess-modal');
     const modal = document.getElementById('assess-modal');
     const form = document.getElementById('assessment-form');
 
     // Open assessment modal
     if (openBtn && modal) {
-        openBtn.addEventListener('click', function () {
-            if (form) form.reset();
+        openBtn.onclick = function () {
+            const f = document.getElementById('assessment-form');
+            if (f) f.reset();
             modal.classList.add('active');
-        });
+        };
     }
 
     // Submit assessment form
     if (form) {
-        form.addEventListener('submit', handleAssessmentSubmit);
+        form.onsubmit = handleAssessmentSubmit;
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAiAssessment);
+} else {
+    initAiAssessment();
+}
 
 // 1. Submit Health Assessment
 async function handleAssessmentSubmit(e) {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    const form = document.getElementById('assessment-form');
     const submitBtn = document.getElementById('submit-assess-btn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Running AI Diagnosis...';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Running AI Diagnosis...';
+    }
 
     // Get current logged in patient info
     let user = null;
@@ -110,7 +120,8 @@ async function handleAssessmentSubmit(e) {
         }
 
         // Close modal and reset form
-        document.getElementById('assess-modal').classList.remove('active');
+        const modal = document.getElementById('assess-modal');
+        if (modal) modal.classList.remove('active');
         if (form) form.reset();
 
         // Render Report on the patient page
@@ -128,8 +139,10 @@ async function handleAssessmentSubmit(e) {
             alert(err.message);
         }
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = '⚡ Run AI Diagnostic Assessment';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '⚡ Run AI Diagnostic Assessment';
+        }
     }
 }
 
@@ -274,5 +287,12 @@ function renderReport(a, openModal) {
 
 // Export module functions
 window.AiAssessmentModule = {
-    renderReport: renderReport
+    renderReport: renderReport,
+    init: initAiAssessment,
+    openAssessmentModal: function () {
+        const modal = document.getElementById('assess-modal');
+        const f = document.getElementById('assessment-form');
+        if (f) f.reset();
+        if (modal) modal.classList.add('active');
+    }
 };

@@ -64,7 +64,7 @@
         if (testItem && currentSlot) {
             summaryBox.innerHTML = `
                 <span style="color: #15803d; font-weight: 700;">
-                    ✓ Ready to Book: <strong>${testItem.name}</strong> on <strong>${date}</strong> at <strong>${currentSlot.label}</strong> (₹${testItem.price_inr})
+                    ✓ Ready to Book: <strong>${testItem.name}</strong> on <strong>${date}</strong> at <strong>${currentSlot.label}</strong>
                 </span>
             `;
         } else if (testItem && !currentSlot) {
@@ -75,7 +75,7 @@
             `;
         } else if (!testItem && currentSlot) {
             summaryBox.innerHTML = `
-                <span style="color: #0369a1; font-weight: 600;">
+                <span style="color: #5b65dc; font-weight: 600;">
                     👉 Slot selected: <strong>${currentSlot.label}</strong>. Please select a diagnostic test from dropdown #1.
                 </span>
             `;
@@ -348,7 +348,7 @@
             bookBtn.textContent = '⏳ Reserving slot...';
         }
         if (summaryBox) {
-            summaryBox.innerHTML = '<span style="color: #0284c7; font-weight: 700;">⏳ Verifying Interval Tree & booking collection slot...</span>';
+            summaryBox.innerHTML = '<span style="color: #5b65dc; font-weight: 700;">⏳ Verifying Interval Tree & booking collection slot...</span>';
         }
 
         try {
@@ -452,7 +452,7 @@
             labCatalog.forEach(test => {
                 const opt = document.createElement('option');
                 opt.value = test.code;
-                opt.textContent = `${test.name} (${test.sample_type}) - ₹${test.price_inr}`;
+                opt.textContent = `${test.name} (${test.sample_type})`;
                 testSelect.appendChild(opt);
             });
         } catch (err) {
@@ -642,7 +642,7 @@
 
                 tr.innerHTML = `
                     <td>
-                        <div style="font-size:16px; font-weight:800; color:${isCritical ? '#dc2626' : '#0284c7'};">
+                        <div style="font-size:16px; font-weight:800; color:${isCritical ? '#dc2626' : '#5b65dc'};">
                             ${item.priority_score}
                         </div>
                         <span class="badge ${isCritical ? 'badge-critical' : 'badge-low'}" style="font-size:10px;">
@@ -651,7 +651,7 @@
                     </td>
                     <td>
                         <strong>${item.patient_name}</strong>
-                        <span class="user-pill" style="font-size:11px; background:#e0f2fe; color:#0369a1; padding:1px 6px; border-radius:4px;">ID: #${item.patient_id}</span>
+                        <span class="user-pill" style="font-size:11px; background:var(--primary-light); color:var(--primary-dark); padding:1px 6px; border-radius:4px;">ID: #${item.patient_id}</span>
                         <div style="font-size:12px; color:var(--text-muted);">📞 ${item.phone} | ${item.village_area}</div>
                     </td>
                     <td>

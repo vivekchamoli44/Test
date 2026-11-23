@@ -108,7 +108,7 @@ function renderTriageTable(patients) {
             <td>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <strong>${item.patient_name}</strong>
-                    <span style="font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 2px 7px; border-radius: 6px; font-weight: 700; border: 1px solid #bae6fd;">ID: #${item.patient_id || item.id}</span>
+                    <span style="font-size: 11px; background: var(--primary-light); color: var(--primary-dark); padding: 2px 7px; border-radius: 6px; font-weight: 700; border: 1px solid #dcdff8;">ID: #${item.patient_id || item.id}</span>
                 </div>
                 <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Age: ${item.age} | ${item.gender} | ${item.village_area}</div>
             </td>

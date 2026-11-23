@@ -37,7 +37,7 @@
                 <p id="patient-sub-details" style="margin-top: 6px; opacity: 0.95;">Early Chronic Disease Detection & Personalized Risk Evaluation</p>
             </div>
             <div>
-                <button id="open-assess-modal" class="btn btn-primary" style="background: white; color: var(--primary-dark); font-size: 0.95rem; padding: 0.75rem 1.25rem;">
+                <button id="open-assess-modal" class="btn btn-primary" onclick="if(window.AiAssessmentModule){window.AiAssessmentModule.openAssessmentModal();}else{const m=document.getElementById('assess-modal');if(m)m.classList.add('active');}" style="background: white; color: var(--primary-dark); font-size: 0.95rem; padding: 0.75rem 1.25rem;">
                     ➕ Start New Assessment
                 </button>
             </div>
@@ -102,7 +102,7 @@
                         <div>
                             <h3 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-main);">🧪 Book Diagnostic Lab Test</h3>
                             <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
-                                Conflict-free time slot booking verified via <strong style="color: var(--primary);">Augmented Interval Tree (O(log N))</strong>
+                                <strong style="color: var(--primary);"></strong>
                             </p>
                         </div>
                         <span id="lab-fasting-tag" class="badge badge-high" style="display: none;"></span>
@@ -129,7 +129,7 @@
                                 <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin: 0;">
                                     3. Select Timing Slot
                                 </label>
-                                <small style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">O(log N) Conflict-Free</small>
+                                <small style="font-size: 0.75rem; color: #5b65dc; font-weight: 600;">O(log N) Conflict-Free</small>
                             </div>
                             <select id="lab-slot-select" class="form-control" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--border); font-size: 0.9rem; background: #fff;">
                                 <option value="">-- Choose Date to View Slots --</option>
@@ -138,8 +138,8 @@
                     </div>
 
                     <!-- Preparation Note Box -->
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 1.25rem; font-size: 0.84rem; color: #166534;">
-                        ℹ️ <strong style="color: #14532d;">Preparation Instructions:</strong> <span id="lab-prep-note">Select a diagnostic test above to see medical preparation details.</span>
+                    <div style="background: #f8f9fe; border: 1px solid #dcdff8; border-radius: 8px; padding: 10px 14px; margin-bottom: 1.25rem; font-size: 0.84rem; color: #3741b5;">
+                        ℹ️ <strong style="color: #272f91;">Preparation Instructions:</strong> <span id="lab-prep-note">Select a diagnostic test above to see medical preparation details.</span>
                     </div>
 
                     <!-- Step 4: Summary & Confirm Button -->

@@ -131,8 +131,8 @@ private:
             WinHttpCloseHandle(hSession);
             return "";
         }
-        // Set HTTPS timeouts (15 seconds)
-        WinHttpSetTimeouts(hRequest, 8000, 8000, 15000, 15000);
+        // Set HTTPS timeouts (4s connect, 7s receive for fast AI response)
+        WinHttpSetTimeouts(hRequest, 4000, 4000, 7000, 7000);
 
         std::wstring headers = L"Content-Type: application/json\r\n";
         if (!api_key_.empty()) {
@@ -304,13 +304,14 @@ public:
             throw std::runtime_error("Gemini API key is not configured. Set GEMINI_API_KEY in .env or config.json.");
         }
 
-        // Current Gemini models (gemini-3.8-flash and gemini-3.5-flash-lite)
+        // High-speed, high-availability Google Gemini models ordered by response speed & quota
         static const std::vector<std::string> models = {
-            "gemini-3.8-flash",
             "gemini-3.5-flash-lite",
-            "gemini-3.8-pro"
+            "gemini-flash-lite-latest",
+            "gemini-3.5-flash",
+            "gemini-flash-latest"
         };
-        const int max_attempts_per_model = 2;
+        const int max_attempts_per_model = 1;
         std::string last_error = "Unknown error.";
 
         for (const auto& model : models) {
@@ -320,27 +321,23 @@ public:
                               << model << ", attempt " << attempt << "/" << max_attempts_per_model << ")..." << std::endl;
                     return request_gemini_assessment(req, model);
                 } catch (const GeminiQuotaExhaustedError& e) {
-                    // This model's free-tier quota is used up for the day — retrying
-                    // it will not help. Move straight to the next model.
+                    // Quota exhausted on this model — immediately try next model
                     last_error = e.what();
                     std::cout << "[Vivek - AI Module] " << last_error << std::endl;
                     break;
                 } catch (const GeminiOverloadedError& e) {
-                    // Momentary overload — worth a short same-model retry.
+                    // Momentary overload on this model — try next fast model immediately
                     last_error = e.what();
                     std::cout << "[Vivek - AI Module] " << last_error << std::endl;
-                    if (attempt < max_attempts_per_model) {
-                        Sleep(800 * attempt);
-                    }
+                    break;
                 } catch (const std::exception& e) {
-                    // Any other failure for this specific model (unexpected response
-                    // shape, etc.) — don't let it abort the whole fallback chain.
+                    // Any other failure for this specific model — continue to next fallback
                     last_error = e.what();
                     std::cout << "[Vivek - AI Module] " << last_error << std::endl;
                     break;
                 }
             }
-            std::cout << "[Vivek - AI Module] Model '" << model << "' unavailable, trying next free-tier Gemini model..." << std::endl;
+            std::cout << "[Vivek - AI Module] Model '" << model << "' unavailable, trying next fast Gemini model..." << std::endl;
         }
 
         throw std::runtime_error("All free-tier Gemini models are currently unavailable. Last error: " + last_error);

@@ -28,15 +28,19 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#ifdef _WIN32
 #include <windows.h>
 #include <winhttp.h>
+#pragma comment(lib, "winhttp.lib")
+#else
+#include <curl/curl.h>
+#include <unistd.h>
+#endif
 #include "crow_all.h"
 #include "models.h"
 #include "db_history.h"
 #include "clinical_standards_reference.h"
 #include "nlohmann/json.h"
-
-#pragma comment(lib, "winhttp.lib")
 
 namespace health {
 
@@ -99,6 +103,7 @@ class GeminiAIEngine {
 private:
     std::string api_key_;
 
+#ifdef _WIN32
     static std::wstring to_wide(const std::string& str) {
         if (str.empty()) return L"";
         int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
@@ -166,6 +171,37 @@ private:
         WinHttpCloseHandle(hSession);
         return response_data;
     }
+#else
+    static size_t curl_write_cb(void* contents, size_t size, size_t nmemb, void* userp) {
+        ((std::string*)userp)->append((char*)contents, size * nmemb);
+        return size * nmemb;
+    }
+
+    // Cross-platform HTTPS POST via libcurl for Linux/Docker/Render
+    std::string http_post_curl(const std::string& url, const std::string& json_body) {
+        std::string response_data;
+        CURL* curl = curl_easy_init();
+        if (curl) {
+            struct curl_slist* headers = NULL;
+            headers = curl_slist_append(headers, "Content-Type: application/json");
+            if (!api_key_.empty()) {
+                std::string key_h = "x-goog-api-key: " + api_key_;
+                headers = curl_slist_append(headers, key_h.c_str());
+            }
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_body.c_str());
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_cb);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_data);
+            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L);
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+            curl_easy_perform(curl);
+            curl_slist_free_all(headers);
+            curl_easy_cleanup(curl);
+        }
+        return response_data;
+    }
+#endif
 
     // Thrown for a Gemini failure that is worth a brief same-model retry
     // (the model is momentarily overloaded, e.g. HTTP 503 / UNAVAILABLE, or
@@ -212,10 +248,14 @@ private:
             {"generationConfig", {{"temperature", 0.2}, {"response_mime_type", "application/json"}}}
         };
 
+#ifdef _WIN32
         std::wstring host = L"generativelanguage.googleapis.com";
         std::wstring path = L"/v1beta/models/" + to_wide(model) + L":generateContent?key=" + to_wide(api_key_);
-
         std::string raw_resp = http_post(host, path, request_payload.dump());
+#else
+        std::string url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + api_key_;
+        std::string raw_resp = http_post_curl(url, request_payload.dump());
+#endif
         if (raw_resp.empty()) {
             throw GeminiOverloadedError("Gemini API (" + model + ") did not respond. Check network connectivity.");
         }

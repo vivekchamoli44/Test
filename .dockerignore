@@ -1,0 +1,7 @@
+backend/server.exe
+backend/*.dll
+backend/*.log
+backend/*.o
+.git
+.gitignore
+*.pdf

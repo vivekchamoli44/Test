@@ -76,7 +76,7 @@ int main() {
     std::string db_pass = env_or("MYSQL_PASSWORD", "");
     std::string db_name = env_or("MYSQL_DATABASE", "ai_health_center");
     std::string gemini_key = health::load_env_var("GEMINI_API_KEY");
-    int port = env_or_int("SERVER_PORT", 8080);
+    int port = env_or_int("PORT", env_or_int("SERVER_PORT", 8080));
 
     // 1. Module: Database & Testing (Implemented by Anjali)
     health::DatabaseManager db(db_host, db_port, db_user, db_pass, db_name);

@@ -19,7 +19,17 @@
 #include <utility>
 #include <chrono>
 #include <iomanip>
-#include <mysql.h>
+#if defined(__has_include)
+  #if __has_include(<mysql/mysql.h>)
+    #include <mysql/mysql.h>
+  #elif __has_include(<mariadb/mysql.h>)
+    #include <mariadb/mysql.h>
+  #else
+    #include <mysql.h>
+  #endif
+#else
+  #include <mysql.h>
+#endif
 #include "crow_all.h"
 #include "models.h"
 #include "nlohmann/json.h"

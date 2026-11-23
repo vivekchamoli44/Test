@@ -1,5 +1,5 @@
-# Multi-stage Dockerfile for Deploying Medico C++ Backend on Render
-FROM ubuntu:22.04 AS builder
+# Production Dockerfile for Medico C++ Backend on Render
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -7,43 +7,30 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     build-essential \
     g++ \
+    default-libmysqlclient-dev \
     libmysqlclient-dev \
     libcurl4-openssl-dev \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /build
-
-# Copy source repository
-COPY . .
-
-# Compile C++ backend for Linux with MySQL and cURL support
-RUN g++ -std=c++17 -O2 \
-    -Ibackend/include \
-    backend/src/main.cpp \
-    -o server \
-    -lmysqlclient -lcurl -lpthread
-
-# Production runtime image
-FROM ubuntu:22.04 AS runner
-
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && apt-get install -y \
-    libmysqlclient21 \
-    libcurl4 \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy compiled executable and frontend assets
-COPY --from=builder /build/server /app/server
-COPY frontend /app/frontend
-COPY backend/.env.example /app/.env
+# Copy all repository files (backend, frontend)
+COPY . .
 
-# Render automatically sets the PORT environment variable
+# Compile C++ backend for Linux with MySQL, cURL, and pthread
+RUN g++ -std=c++17 -O2 \
+    -Ibackend/include \
+    -Ibackend/src \
+    -I/usr/include/mysql \
+    backend/src/main.cpp \
+    -o server \
+    -L/usr/lib/x86_64-linux-gnu \
+    -lmysqlclient -lcurl -lpthread
+
+# Render automatically injects the PORT environment variable (default 10000)
 ENV PORT=10000
 EXPOSE 10000
 
 CMD ["./server"]
+
